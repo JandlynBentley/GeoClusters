@@ -1,2 +1,8 @@
 
-# A blank program for the initial commit.
+
+def main():
+    print("This is a test.")
+
+
+if __name__ == "__main__":
+    main()
