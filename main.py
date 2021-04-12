@@ -17,8 +17,10 @@ import dash
 from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
-import dash_table
 import pandas as pd
+
+from sklearn.cluster import KMeans
+import plotly.graph_objs as go
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -46,7 +48,6 @@ def main():
             children='GeoClusters',
             style={
                 'textAlign': 'center'
-
             }
         ),
 
@@ -90,18 +91,28 @@ def main():
 
         # Container for the data table
         html.Div(id='output-data-upload'),
+
+        html.Br(),
+
+        html.H3(
+            children='End of demo',
+            style={
+                'textAlign': 'center'
+            }
+        ),
     ])
 
-    # Given the data from Upload, output a data table
+    # Given the data from Upload, output a scatter plot graph
     @app.callback(Output('output-data-upload', 'children'),
                   Input('upload-data', 'contents'),
                   State('upload-data', 'filename'),
                   State('upload-data', 'last_modified'))
     def update_output(list_of_contents, list_of_names, list_of_dates):
+
         if list_of_contents is not None:
             children = [
                 # c = contents, n = filename, d = date
-                parse_contents(c, n, d) for c, n, d in zip(list_of_contents, list_of_names, list_of_dates)
+                parse_contents_to_graph(c, n, d) for c, n, d in zip(list_of_contents, list_of_names, list_of_dates)
             ]
             return children
 
@@ -109,9 +120,8 @@ def main():
     app.run_server(debug=True)
 
 
-# Given a file, parse the contents into a DataTable
-def parse_contents(contents, filename, date):
-
+# Given a file, parse the contents into a scatter plot
+def parse_contents_to_graph(contents, filename, date):
     # Data is separated by a comma
     content_type, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
@@ -121,40 +131,50 @@ def parse_contents(contents, filename, date):
         if 'csv' in filename:
             # Assume that the user uploaded a CSV file
             # df = pd.read_csv('file_location\filename.txt', delimiter = "\t")
-            df = pd.read_csv(
-                io.StringIO(decoded.decode('utf-8')))
+            df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
         elif 'xls' in filename:
             # Assume that the user uploaded an excel file
             df = pd.read_excel(io.BytesIO(decoded))
+
     except Exception as e:
         print(e)
         return html.Div([
             'There was an error processing this file.'
         ])
 
-    # Display the data set's title and timestamp
+    # 3D GRAPH: axes hard coded while testing in progress
+    x_axis = '[SO4]2- [mg/l]'
+    y_axis = 'pH'
+    z_axis = 'Depth well [m] (sample depth in m below groun...)'
+
+    x = df[[x_axis, y_axis, z_axis]].values
+    model = KMeans(n_clusters=4, init="k-means++", max_iter=300, n_init=10, random_state=0)
+    y_clusters = model.fit_predict(x)
+
+    # 3D scatter plot using Plotly
+    scene = dict(xaxis=dict(title=x_axis + ' <---'), yaxis=dict(title=y_axis + ' --->'),
+                 zaxis=dict(title=z_axis + ' <---'))
+    labels = model.labels_
+    trace = go.Scatter3d(x=x[:, 0], y=x[:, 1], z=x[:, 2], mode='markers',
+                         marker=dict(color=labels, size=10, line=dict(color='black', width=10)))
+    layout = go.Layout(margin=dict(l=0, r=0), scene=scene, height=800, width=800)
+    data = [trace]
+    fig_k_means = go.Figure(data=data, layout=layout)
+
     return html.Div([
-        html.H5(filename),
+        html.H5("K-Means"),
+        html.H6(filename),
         html.H6(datetime.datetime.fromtimestamp(date)),
 
-        # display as a data table
-        dash_table.DataTable(
-            data=df.to_dict('records'),
-            columns=[{'name': i, 'id': i} for i in df.columns]
+        # Display the 3D graph
+        dcc.Graph(
+            id='k-means',
+            figure=fig_k_means
         ),
 
-        html.Hr(),  # horizontal line
-
-        # REMOVED THE 'RAW CONTENT PROVIDED BY WEB BROWSER' DEBUGGING CODE FROM ORIGINAL TUTORIAL
+        html.Hr()
     ])
 
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
-
-
