@@ -2,7 +2,7 @@
 Capstone Project: GeoClusters
 Written by: Jandlyn Bentley, Bridgewater State University, 2021
 
-# This program is the primary program for the GeoClusters Dash web app.
+This program is the primary program for the GeoClusters Dash web app.
 
 Here the Dash app is established, with basic instructions on how to use the open-source tool,
 a data set file upload component, and (eventually) a clustering algorithm comparison component.

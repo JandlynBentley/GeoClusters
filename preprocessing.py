@@ -2,9 +2,9 @@
 Capstone Project: GeoClusters
 Written by: Jandlyn Bentley, Bridgewater State University, 2021
 
-# This program is used in supplement to the clustering algorithms by pre-processing a specific data set
-# that had already been stripped of the leading comment block and converted from a .tab file to a .csv file.
-# For any other data set, adjust this code as needed.
+This program is used in supplement to the clustering algorithms by pre-processing a specific data set
+that had already been stripped of the leading comment block and converted from a .tab file to a .csv file.
+For any other data set, adjust this code as needed.
 """
 
 import csv
