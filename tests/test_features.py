@@ -19,5 +19,5 @@ def test_preprocessing_data():
 
 # These tests are conducted on the testing data set made after pre-processing
 def test():
-    assert test_preprocessing_data() is not None
+    assert test_preprocessing_data is not None
 
