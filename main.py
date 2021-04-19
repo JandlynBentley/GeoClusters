@@ -89,25 +89,50 @@ def main():
 
         html.Br(),
 
-        # Container for the data table
-        html.Div(id='output-data-upload'),
+        # Container for the first graph
+        html.Div(
+            id='output-graph1',
+            style={'width': '50%',
+                   'display': 'inline-block'}
+        ),
+
+        # Container for the first graph
+        html.Div(
+            id='output-graph2',
+            style={'width': '50%',
+                   'display': 'inline-block'}
+        ),
 
         html.Br(),
 
         html.H3(
-            children='End of demo',
+            children='*************************************************',
             style={
                 'textAlign': 'center'
             }
-        ),
+        )
     ])
 
-    # Given the data from Upload, output a scatter plot graph
-    @app.callback(Output('output-data-upload', 'children'),
+    # Given the data from Upload, output a scatter plot to graph1
+    @app.callback(Output('output-graph1', 'children'),
                   Input('upload-data', 'contents'),
                   State('upload-data', 'filename'),
                   State('upload-data', 'last_modified'))
-    def update_output(list_of_contents, list_of_names, list_of_dates):
+    def update_output_graph1(list_of_contents, list_of_names, list_of_dates):
+
+        if list_of_contents is not None:
+            children = [
+                # c = contents, n = filename, d = date
+                parse_contents_to_graph(c, n, d) for c, n, d in zip(list_of_contents, list_of_names, list_of_dates)
+            ]
+            return children
+
+    # Given the data from Upload, output a scatter plot to graph2
+    @app.callback(Output('output-graph2', 'children'),
+                  Input('upload-data', 'contents'),
+                  State('upload-data', 'filename'),
+                  State('upload-data', 'last_modified'))
+    def update_output_graph12(list_of_contents, list_of_names, list_of_dates):
 
         if list_of_contents is not None:
             children = [
