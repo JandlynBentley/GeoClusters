@@ -6,8 +6,6 @@ This program is the primary program for the GeoClusters Dash web app.
 
 Here the Dash app is established, with basic instructions on how to use the open-source tool,
 a data set file upload component, and (eventually) a clustering algorithm comparison component.
-Currently, this program only takes in and parses a .csv or .xsl data set and produces a data table
-in the web app.
 """
 
 import base64
@@ -98,14 +96,14 @@ def main():
         #     )
         # ]),
 
-        # Container for the first set of axes dropdowns and graph
+        # Container for all the dropdowns
         html.Div(
             id='output-dropdown-area',
             style={'width': '50%',
                    'display': 'inline-block'}
         ),
 
-        # Container for the second set of axes dropdowns and graph
+        # Container for the graphs
         html.Div([
             html.Div(
                 id='output-graph-area1',
@@ -142,7 +140,6 @@ def main():
                 'margin-bottom': '10px',
                 'backgroundColor': '#d6f5f5',
             },
-
             # Allow multiple files to be uploaded
             multiple=True
         ),
@@ -150,7 +147,8 @@ def main():
         html.Br()
     ])
 
-    # Given the data from Upload, output a scatter plot to graph2
+    # Given the data set from Upload, parse the data into a data frame and collect axis options
+    # Also return axis dropdowns for x, y, and z
     @app.callback(Output('output-dropdown-area', 'children'),
                   Input('upload-data', 'contents'),
                   State('upload-data', 'filename'),
@@ -296,12 +294,11 @@ def main():
             print("A Graph for " + str(algorithm) + " will be made:")
 
             if algorithm == 'K-Means':
-                # call K-Means
                 print("A K-Means Graph will be made.")
 
-                # make a k-means 3D graph
-                fig_3d = make_k_means_3d_graph(data[0])
-                fig_2d = make_k_means_2d_graph(data[0])
+                # make a k-means 3D and 2D graphs
+                fig_3d = make_k_means_3d_graph(data[0], x, y, z)
+                fig_2d = make_k_means_2d_graph(data[0], x, y)
 
                 children = [
                     html.Br(),
@@ -310,7 +307,6 @@ def main():
                         id='graph1',
                         figure=fig_3d
                     ),
-                    # make_k_means_2d_graph(df)
                     dcc.Graph(
                         id='graph1',
                         figure=fig_2d
@@ -380,7 +376,7 @@ def parse_contents(contents, filename, date):
     content_type, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
 
-    # Make a dataframe, df, from either csv or excel file
+    # Make a data frame, df, from either csv or excel file
     try:
         if 'csv' in filename:
             # Assume that the user uploaded a CSV file
@@ -411,11 +407,11 @@ def parse_contents(contents, filename, date):
 
 
 # Return a figure for the 3D version of K-Means
-def make_k_means_3d_graph(df):
+def make_k_means_3d_graph(df, x_axis, y_axis, z_axis):
     # 3D GRAPH: axes hard coded while testing in progress
-    x_axis = '[SO4]2- [mg/l]'
-    y_axis = 'pH'
-    z_axis = 'Depth well [m] (sample depth in m below groun...)'
+    # x_axis = '[SO4]2- [mg/l]'
+    # y_axis = 'pH'
+    # z_axis = 'Depth well [m] (sample depth in m below groun...)'
 
     x = df[[x_axis, y_axis, z_axis]].values
     model = KMeans(n_clusters=4, init="k-means++", max_iter=300, n_init=10, random_state=0)
@@ -436,10 +432,9 @@ def make_k_means_3d_graph(df):
 
 
 # Return a figure for the 2D version of K-Means
-def make_k_means_2d_graph(df):
-    algorithm = "K-Means"
-    x_axis = 'pH'
-    y_axis = '[SO4]2- [mg/l]'
+def make_k_means_2d_graph(df, x_axis, y_axis):
+    # x_axis = 'pH'
+    # y_axis = '[SO4]2- [mg/l]'
 
     # make a data frame from the csv data
     x = df[[x_axis, y_axis]].values
@@ -449,7 +444,7 @@ def make_k_means_2d_graph(df):
     y_clusters = model.fit_predict(x)
     labels = model.labels_
 
-    layout = go.Layout(title=algorithm,
+    layout = go.Layout(title="K-Means",
                        margin=dict(l=0, r=0),
                        xaxis=dict(title=x_axis),
                        yaxis=dict(title=y_axis),
