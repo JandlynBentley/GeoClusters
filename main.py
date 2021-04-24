@@ -14,6 +14,7 @@ import base64
 import datetime
 import io
 import dash
+import numpy as np
 from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
@@ -23,7 +24,6 @@ from sklearn.cluster import KMeans
 import plotly.graph_objs as go
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-
 markdown_text = '''
 ---
 ### GeoClusters is a visual tool for geoscientists to view their data under various clustering algorithms in real time.
@@ -36,12 +36,12 @@ A data table will also be provided at the bottom of the app for reference.
 
 The code for this open-source tool can be found on [Github](https://github.com/JandlynBentley/GeoClusters).
 '''
+axes_options = []
 
 
 def main():
 
     app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-
     app.layout = html.Div([
 
         html.H1(
@@ -61,7 +61,66 @@ def main():
 
         html.Br(),
 
-        # Dash Upload component
+        # Container for algorithm dropdown menus
+        html.Div([
+            dcc.Dropdown(
+                id="dropdown_algorithm1",
+                options=[{'label': 'K-Means', 'value': 1},
+                         {'label': "GMM", 'value': 2},
+                         {'label': "DBSCAN", 'value': 3},
+                         {'label': "Mean-Shift", 'value': 4}
+                         ],
+                placeholder='Select Algorithm',
+                style={
+                    'width': '50%',
+                    'display': 'inline-block',
+                    'lineHeight': '30px',
+                    'borderWidth': '1px',
+                    'textAlign': 'left'
+                }
+            ),
+            dcc.Dropdown(
+                id="dropdown_algorithm2",
+                options=[{'label': 'K-Means', 'value': 1},
+                         {'label': "GMM", 'value': 2},
+                         {'label': "DBSCAN", 'value': 3},
+                         {'label': "Mean-Shift", 'value': 4}
+                         ],
+                placeholder='Select Algorithm',
+                style={
+                    'width': '50%',
+                    'display': 'inline-block',
+                    'lineHeight': '30px',
+                    'borderWidth': '1px',
+                    'textAlign': 'left'
+                }
+            )
+        ]),
+
+        # Container for the first set of axes dropdowns and graph
+        html.Div(
+            id='output-dropdown-area',
+            style={'width': '50%',
+                   'display': 'inline-block'}
+        ),
+
+        # Container for the second set of axes dropdowns and graph
+        html.Div([
+            html.Div(
+                id='output-graph-area1',
+                style={'width': '50%',
+                       'display': 'inline-block'},
+            ),
+            html.Div(
+                id='output-graph-area2',
+                style={'width': '50%',
+                       'display': 'inline-block'},
+            ),
+        ]),
+
+        html.Br(),
+
+        # Container for file upload component
         dcc.Upload(
             id='upload-data',
             children=html.Div([
@@ -87,66 +146,157 @@ def main():
             multiple=True
         ),
 
-        html.Br(),
-
-        # Container for the first graph
-        html.Div(
-            id='output-graph1',
-            style={'width': '50%',
-                   'display': 'inline-block'}
-        ),
-
-        # Container for the first graph
-        html.Div(
-            id='output-graph2',
-            style={'width': '50%',
-                   'display': 'inline-block'}
-        ),
-
-        html.Br(),
-
-        html.H3(
-            children='*************************************************',
-            style={
-                'textAlign': 'center'
-            }
-        )
+        html.Br()
     ])
 
-    # Given the data from Upload, output a scatter plot to graph1
-    @app.callback(Output('output-graph1', 'children'),
+    # Given the data from Upload, output a scatter plot to graph2
+    @app.callback(Output('output-dropdown-area', 'children'),
                   Input('upload-data', 'contents'),
                   State('upload-data', 'filename'),
                   State('upload-data', 'last_modified'))
-    def update_output_graph1(list_of_contents, list_of_names, list_of_dates):
+    def update_input_dropdown2(list_of_contents, list_of_names, list_of_dates):
 
         if list_of_contents is not None:
+
+            # the list variable is not used; it is required syntax for this function call to work
+            temp = [parse_contents_right_side(c, n, d) for c, n, d in zip(list_of_contents, list_of_names, list_of_dates)]
+
             children = [
-                # c = contents, n = filename, d = date
-                parse_contents_to_graph(c, n, d) for c, n, d in zip(list_of_contents, list_of_names, list_of_dates)
+                    # Div 1: Axes dropdowns for left side
+                    html.Div([
+                        html.H5("X-Axis"),
+                        dcc.Dropdown(
+                            id="dd_x_1",
+                            placeholder='Select X-axis attribute 1',
+                            options=[{'label': i, 'value': i} for i in axes_options],
+                            style={
+                                'width': '50%',
+                                'display': 'inline-block',
+                                'lineHeight': '30px',
+                                'borderWidth': '1px',
+                                'textAlign': 'left'
+                            },
+                        ),
+                        html.H5("Y-Axis"),
+                        dcc.Dropdown(
+                            id="dd_y_1",
+                            placeholder='Select Y-axis attribute 1',
+                            options=[{'label': i, 'value': i} for i in axes_options],
+                            style={
+                                'width': '50%',
+                                'display': 'inline-block',
+                                'lineHeight': '30px',
+                                'borderWidth': '1px',
+                                'textAlign': 'left'
+                            },
+                        ),
+                        html.H5("Z-Axis"),
+                        dcc.Dropdown(
+                            id="dd_z_1",
+                            placeholder='Select Z-axis attribute 1',
+                            options=[{'label': i, 'value': i} for i in axes_options],
+                            style={
+                                'width': '50%',
+                                'display': 'inline-block',
+                                'lineHeight': '30px',
+                                'borderWidth': '1px',
+                                'textAlign': 'left'
+                            }
+                        )
+                    ]),
+
+                    # Div 2: Axes dropdowns for right side
+                    html.Div([
+                        html.H5("X-Axis"),
+                        dcc.Dropdown(
+                            id="dd_x_2",
+                            placeholder='Select X-axis attribute 2',
+                            options=[{'label': i, 'value': i} for i in axes_options],
+                            style={
+                                'width': '50%',
+                                'display': 'inline-block',
+                                'lineHeight': '30px',
+                                'borderWidth': '1px',
+                                'textAlign': 'left'
+                            },
+                        ),
+                        html.H5("Y-Axis"),
+                        dcc.Dropdown(
+                            id="dd_y_2",
+                            placeholder='Select Y-axis attribute 2',
+                            options=[{'label': i, 'value': i} for i in axes_options],
+                            style={
+                                'width': '50%',
+                                'display': 'inline-block',
+                                'lineHeight': '30px',
+                                'borderWidth': '1px',
+                                'textAlign': 'left'
+                            },
+                        ),
+                        html.H5("Z-Axis"),
+                        dcc.Dropdown(
+                            id="dd_z_2",
+                            placeholder='Select Z-axis attribute 2',
+                            options=[{'label': i, 'value': i} for i in axes_options],
+                            style={
+                                'width': '50%',
+                                'display': 'inline-block',
+                                'lineHeight': '30px',
+                                'borderWidth': '1px',
+                                'textAlign': 'left'
+                            }
+                        )
+                    ])
             ]
             return children
 
-    # Given the data from Upload, output a scatter plot to graph2
-    @app.callback(Output('output-graph2', 'children'),
-                  Input('upload-data', 'contents'),
-                  State('upload-data', 'filename'),
-                  State('upload-data', 'last_modified'))
-    def update_output_graph12(list_of_contents, list_of_names, list_of_dates):
+    # Once x, y, z axes have been chosen, output a scatter plot to graph 1
+    @app.callback(Output('output-graph-area1', 'children'),
+                  Input('dd_x_1', 'value'),
+                  Input('dd_y_1', 'value'),
+                  Input('dd_z_1', 'value'))
+    def update_output_graph1(x, y, z):
 
-        if list_of_contents is not None:
+        # include check for IFF x, y, and z all have values, then make the graph
+        if (x is not None) and (y is not None) and (z is not None):
+
+            print("Graph would be called, and x is: " + str(x))
+            print("Graph would be called, and y is: " + str(y))
+            print("Graph would be called, and z is: " + str(z))
+
             children = [
-                # c = contents, n = filename, d = date
-                parse_contents_to_graph(c, n, d) for c, n, d in zip(list_of_contents, list_of_names, list_of_dates)
+                # graph (eventually: depends on which algorithm was selected
+                html.H5("A graph will be made (1).")
+            ]
+            return children
+
+    # Once x, y, z axes have been chosen, output a scatter plot to graph 2
+    @app.callback(Output('output-graph-area2', 'children'),
+                  Input('dd_x_2', 'value'),
+                  Input('dd_y_2', 'value'),
+                  Input('dd_z_2', 'value'))
+    def update_output_graph2(x, y, z):
+
+        # include check for IFF x, y, and z all have values, then make the graph
+        if (x is not None) and (y is not None) and (z is not None):
+
+            print("Graph would be called, and x is: " + str(x))
+            print("Graph would be called, and y is: " + str(y))
+            print("Graph would be called, and z is: " + str(z))
+
+            children = [
+                # graph (eventually: depends on which algorithm was selected
+                html.H5("A graph will be made (2).")
             ]
             return children
 
     # Run the app
-    app.run_server(debug=True)
+    app.run_server(debug=True, dev_tools_ui=False)
 
 
 # Given a file, parse the contents into a scatter plot
-def parse_contents_to_graph(contents, filename, date):
+def parse_contents_right_side(contents, filename, date):
+
     # Data is separated by a comma
     content_type, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
@@ -155,18 +305,27 @@ def parse_contents_to_graph(contents, filename, date):
     try:
         if 'csv' in filename:
             # Assume that the user uploaded a CSV file
-            # df = pd.read_csv('file_location\filename.txt', delimiter = "\t")
             df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
         elif 'xls' in filename:
             # Assume that the user uploaded an excel file
             df = pd.read_excel(io.BytesIO(decoded))
-
     except Exception as e:
         print(e)
         return html.Div([
             'There was an error processing this file.'
         ])
 
+    # parse the
+    columns = df.columns
+    data_types = df.dtypes
+    # axes_options = []
+    if columns is not None:
+        for i in range(len(columns)):
+            if data_types[i] == 'int64' or data_types[i] == 'float64':
+                axes_options.append(columns[i])
+
+
+def make_k_means_3d_graph(df):
     # 3D GRAPH: axes hard coded while testing in progress
     x_axis = '[SO4]2- [mg/l]'
     y_axis = 'pH'
@@ -180,25 +339,14 @@ def parse_contents_to_graph(contents, filename, date):
     scene = dict(xaxis=dict(title=x_axis + ' <---'), yaxis=dict(title=y_axis + ' --->'),
                  zaxis=dict(title=z_axis + ' <---'))
     labels = model.labels_
-    trace = go.Scatter3d(x=x[:, 0], y=x[:, 1], z=x[:, 2], mode='markers',
+    trace = go.Scatter3d(x=x[:, 0], y=x[:, 1], z=x[:, 2],
+                         mode='markers',
                          marker=dict(color=labels, size=10, line=dict(color='black', width=10)))
     layout = go.Layout(margin=dict(l=0, r=0), scene=scene, height=800, width=800)
     data = [trace]
     fig_k_means = go.Figure(data=data, layout=layout)
 
-    return html.Div([
-        html.H5("K-Means"),
-        html.H6(filename),
-        html.H6(datetime.datetime.fromtimestamp(date)),
-
-        # Display the 3D graph
-        dcc.Graph(
-            id='k-means',
-            figure=fig_k_means
-        ),
-
-        html.Hr()
-    ])
+    return fig_k_means
 
 
 if __name__ == '__main__':
