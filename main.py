@@ -37,6 +37,7 @@ A data table will also be provided at the bottom of the app for reference.
 The code for this open-source tool can be found on [Github](https://github.com/JandlynBentley/GeoClusters).
 '''
 axes_options = []
+data = []
 
 
 def main():
@@ -62,40 +63,40 @@ def main():
         html.Br(),
 
         # Container for algorithm dropdown menus
-        html.Div([
-            dcc.Dropdown(
-                id="dropdown_algorithm1",
-                options=[{'label': 'K-Means', 'value': 1},
-                         {'label': "GMM", 'value': 2},
-                         {'label': "DBSCAN", 'value': 3},
-                         {'label': "Mean-Shift", 'value': 4}
-                         ],
-                placeholder='Select Algorithm',
-                style={
-                    'width': '50%',
-                    'display': 'inline-block',
-                    'lineHeight': '30px',
-                    'borderWidth': '1px',
-                    'textAlign': 'left'
-                }
-            ),
-            dcc.Dropdown(
-                id="dropdown_algorithm2",
-                options=[{'label': 'K-Means', 'value': 1},
-                         {'label': "GMM", 'value': 2},
-                         {'label': "DBSCAN", 'value': 3},
-                         {'label': "Mean-Shift", 'value': 4}
-                         ],
-                placeholder='Select Algorithm',
-                style={
-                    'width': '50%',
-                    'display': 'inline-block',
-                    'lineHeight': '30px',
-                    'borderWidth': '1px',
-                    'textAlign': 'left'
-                }
-            )
-        ]),
+        # html.Div([
+        #     dcc.Dropdown(
+        #         id="dropdown_algorithm1",
+        #         options=[{'label': 'K-Means', 'value': 'K-Means'},
+        #                  {'label': 'GMM', 'value': 'GMM'},
+        #                  {'label': 'DBSCAN', 'value': 'DBSCAN'},
+        #                  {'label': 'Mean-Shift', 'value': 'Mean-Shift'}
+        #                  ],
+        #         placeholder='Select Algorithm',
+        #         style={
+        #             'width': '50%',
+        #             'display': 'inline-block',
+        #             'lineHeight': '30px',
+        #             'borderWidth': '1px',
+        #             'textAlign': 'left'
+        #         }
+        #     ),
+        #     dcc.Dropdown(
+        #         id="dropdown_algorithm2",
+        #         options=[{'label': 'K-Means', 'value': 'K-Means'},
+        #                  {'label': 'GMM', 'value': 'GMM'},
+        #                  {'label': 'DBSCAN', 'value': 'DBSCAN'},
+        #                  {'label': 'Mean-Shift', 'value': 'Mean-Shift'}
+        #                  ],
+        #         placeholder='Select Algorithm',
+        #         style={
+        #             'width': '50%',
+        #             'display': 'inline-block',
+        #             'lineHeight': '30px',
+        #             'borderWidth': '1px',
+        #             'textAlign': 'left'
+        #         }
+        #     )
+        # ]),
 
         # Container for the first set of axes dropdowns and graph
         html.Div(
@@ -154,120 +155,195 @@ def main():
                   Input('upload-data', 'contents'),
                   State('upload-data', 'filename'),
                   State('upload-data', 'last_modified'))
-    def update_input_dropdown2(list_of_contents, list_of_names, list_of_dates):
+    def update_input_dropdown(list_of_contents, list_of_names, list_of_dates):
 
         if list_of_contents is not None:
 
-            # the list variable is not used; it is required syntax for this function call to work
-            temp = [parse_contents_right_side(c, n, d) for c, n, d in zip(list_of_contents, list_of_names, list_of_dates)]
+            data_frame = [parse_contents(c, n, d) for c, n, d in zip(list_of_contents, list_of_names, list_of_dates)]
+            '''
+            The parsing function takes in a data set, collects and stores the attributes in a global variable
+            to be used for the axes' dropdown options, and returns the data set as a Pandas data frame.
+            
+            Confirmed that the parsing function does indeed return a data frame as needed if it's indexed
+            '''
 
             children = [
-                    # Div 1: Axes dropdowns for left side
-                    html.Div([
-                        html.H5("X-Axis"),
-                        dcc.Dropdown(
-                            id="dd_x_1",
-                            placeholder='Select X-axis attribute 1',
-                            options=[{'label': i, 'value': i} for i in axes_options],
-                            style={
-                                'width': '50%',
-                                'display': 'inline-block',
-                                'lineHeight': '30px',
-                                'borderWidth': '1px',
-                                'textAlign': 'left'
-                            },
-                        ),
-                        html.H5("Y-Axis"),
-                        dcc.Dropdown(
-                            id="dd_y_1",
-                            placeholder='Select Y-axis attribute 1',
-                            options=[{'label': i, 'value': i} for i in axes_options],
-                            style={
-                                'width': '50%',
-                                'display': 'inline-block',
-                                'lineHeight': '30px',
-                                'borderWidth': '1px',
-                                'textAlign': 'left'
-                            },
-                        ),
-                        html.H5("Z-Axis"),
-                        dcc.Dropdown(
-                            id="dd_z_1",
-                            placeholder='Select Z-axis attribute 1',
-                            options=[{'label': i, 'value': i} for i in axes_options],
-                            style={
-                                'width': '50%',
-                                'display': 'inline-block',
-                                'lineHeight': '30px',
-                                'borderWidth': '1px',
-                                'textAlign': 'left'
-                            }
-                        )
-                    ]),
+                html.Div([
+                    html.H5("Algorithm Selection"),
+                    dcc.Dropdown(
+                        id="dropdown_algorithm1",
+                        options=[{'label': 'K-Means', 'value': 'K-Means'},
+                                 {'label': 'GMM', 'value': 'GMM'},
+                                 {'label': 'DBSCAN', 'value': 'DBSCAN'},
+                                 {'label': 'Mean-Shift', 'value': 'Mean-Shift'}
+                                 ],
+                        placeholder='Select an algorithm',
+                        style={
+                            'width': '50%',
+                            'display': 'inline-block',
+                            'lineHeight': '30px',
+                            'borderWidth': '1px',
+                            'textAlign': 'left'
+                        }
+                    ),
+                ]),
 
-                    # Div 2: Axes dropdowns for right side
-                    html.Div([
-                        html.H5("X-Axis"),
-                        dcc.Dropdown(
-                            id="dd_x_2",
-                            placeholder='Select X-axis attribute 2',
-                            options=[{'label': i, 'value': i} for i in axes_options],
-                            style={
-                                'width': '50%',
-                                'display': 'inline-block',
-                                'lineHeight': '30px',
-                                'borderWidth': '1px',
-                                'textAlign': 'left'
-                            },
-                        ),
-                        html.H5("Y-Axis"),
-                        dcc.Dropdown(
-                            id="dd_y_2",
-                            placeholder='Select Y-axis attribute 2',
-                            options=[{'label': i, 'value': i} for i in axes_options],
-                            style={
-                                'width': '50%',
-                                'display': 'inline-block',
-                                'lineHeight': '30px',
-                                'borderWidth': '1px',
-                                'textAlign': 'left'
-                            },
-                        ),
-                        html.H5("Z-Axis"),
-                        dcc.Dropdown(
-                            id="dd_z_2",
-                            placeholder='Select Z-axis attribute 2',
-                            options=[{'label': i, 'value': i} for i in axes_options],
-                            style={
-                                'width': '50%',
-                                'display': 'inline-block',
-                                'lineHeight': '30px',
-                                'borderWidth': '1px',
-                                'textAlign': 'left'
-                            }
-                        )
-                    ])
+                # Div 1: Axes dropdowns for left side
+                html.Div([
+                    html.H5("X-Axis"),
+                    dcc.Dropdown(
+                        id="dd_x_1",
+                        placeholder='Select X-axis attribute 1',
+                        options=[{'label': i, 'value': i} for i in axes_options],
+                        style={
+                            'width': '50%',
+                            # 'display': 'inline-block',
+                            'lineHeight': '30px',
+                            'borderWidth': '1px',
+                            'textAlign': 'left'
+                        },
+                    ),
+                    html.H5("Y-Axis"),
+                    dcc.Dropdown(
+                        id="dd_y_1",
+                        placeholder='Select Y-axis attribute 1',
+                        options=[{'label': i, 'value': i} for i in axes_options],
+                        style={
+                            'width': '50%',
+                            # 'display': 'inline-block',
+                            'lineHeight': '30px',
+                            'borderWidth': '1px',
+                            'textAlign': 'left'
+                        },
+                    ),
+                    html.H5("Z-Axis"),
+                    dcc.Dropdown(
+                        id="dd_z_1",
+                        placeholder='Select Z-axis attribute 1',
+                        options=[{'label': i, 'value': i} for i in axes_options],
+                        style={
+                            'width': '50%',
+                            # 'display': 'inline-block',
+                            'lineHeight': '30px',
+                            'borderWidth': '1px',
+                            'textAlign': 'left'
+                        }
+                    )
+                ]),
+
+                # # Div 2: Axes dropdowns for right side
+                # html.Div([
+                #     html.H5("X-Axis"),
+                #     dcc.Dropdown(
+                #         id="dd_x_2",
+                #         placeholder='Select X-axis attribute 2',
+                #         options=[{'label': i, 'value': i} for i in axes_options],
+                #         style={
+                #             'width': '50%',
+                #             # 'display': 'inline-block',
+                #             'lineHeight': '30px',
+                #             'borderWidth': '1px',
+                #             'textAlign': 'left'
+                #         },
+                    # ),
+                    # html.H5("Y-Axis"),
+                    # dcc.Dropdown(
+                    #     id="dd_y_2",
+                    #     placeholder='Select Y-axis attribute 2',
+                    #     options=[{'label': i, 'value': i} for i in axes_options],
+                    #     style={
+                    #         'width': '50%',
+                    #         # 'display': 'inline-block',
+                    #         'lineHeight': '30px',
+                    #         'borderWidth': '1px',
+                    #         'textAlign': 'left'
+                    #     },
+                    # ),
+                    # html.H5("Z-Axis"),
+                    # dcc.Dropdown(
+                    #     id="dd_z_2",
+                    #     placeholder='Select Z-axis attribute 2',
+                    #     options=[{'label': i, 'value': i} for i in axes_options],
+                    #     style={
+                    #         'width': '50%',
+                    #         # 'display': 'inline-block',
+                    #         'lineHeight': '30px',
+                    #         'borderWidth': '1px',
+                    #         'textAlign': 'left'
+                    #     }
+                    # )
+                # ])
             ]
             return children
 
     # Once x, y, z axes have been chosen, output a scatter plot to graph 1
     @app.callback(Output('output-graph-area1', 'children'),
+                  Input("dropdown_algorithm1", "value"),
                   Input('dd_x_1', 'value'),
                   Input('dd_y_1', 'value'),
                   Input('dd_z_1', 'value'))
-    def update_output_graph1(x, y, z):
+    def update_output_graph1(algorithm, x, y, z):
+
+        print("Algorithm is: " + str(algorithm))
+        print("x is: " + str(x))
+        print("y is: " + str(y))
+        print("z is: " + str(z))
+        print("testing...data frame should be: " + str(data[0]))
 
         # include check for IFF x, y, and z all have values, then make the graph
-        if (x is not None) and (y is not None) and (z is not None):
+        if (algorithm is not None) and (x is not None) and (y is not None) and (z is not None):
 
-            print("Graph would be called, and x is: " + str(x))
-            print("Graph would be called, and y is: " + str(y))
-            print("Graph would be called, and z is: " + str(z))
+            print("A Graph for " + str(algorithm) + " will be made:")
 
-            children = [
-                # graph (eventually: depends on which algorithm was selected
-                html.H5("A graph will be made (1).")
-            ]
+            if algorithm == 'K-Means':
+                # call K-Means
+                print("A K-Means Graph will be made.")
+
+                # make a k-means 3D graph
+                fig_3d = make_k_means_3d_graph(data[0])
+                fig_2d = make_k_means_2d_graph(data[0])
+
+                children = [
+                    html.Br(),
+                    html.H5("A " + str(algorithm) + " graph will be made (1)."),
+                    dcc.Graph(
+                        id='graph1',
+                        figure=fig_3d
+                    ),
+                    # make_k_means_2d_graph(df)
+                    dcc.Graph(
+                        id='graph1',
+                        figure=fig_2d
+                    )
+                ]
+
+            elif algorithm == 'GMM':
+                # call GMM
+                print("GMM not available yet.")
+
+                children = [
+                    html.Br(),
+                    html.H5("A " + str(algorithm) + " graph will be made (1).")
+                ]
+
+            elif algorithm == 'DBSCAN':
+                # call DBSCAN
+                print("DBSCAN not available yet.")
+
+                children = [
+                    html.Br(),
+                    html.H5("A " + str(algorithm) + " graph will be made (1).")
+                ]
+
+            elif algorithm == 'Mean-Shift':
+                # call Mean-Shift
+                print("Mean-Shift not available yet.")
+
+                children = [
+                    html.Br(),
+                    html.H5("A " + str(algorithm) + " graph will be made (1).")
+                ]
+
             return children
 
     # Once x, y, z axes have been chosen, output a scatter plot to graph 2
@@ -295,7 +371,10 @@ def main():
 
 
 # Given a file, parse the contents into a scatter plot
-def parse_contents_right_side(contents, filename, date):
+def parse_contents(contents, filename, date):
+
+    columns = []
+    data_types = []
 
     # Data is separated by a comma
     content_type, content_string = contents.split(',')
@@ -306,25 +385,32 @@ def parse_contents_right_side(contents, filename, date):
         if 'csv' in filename:
             # Assume that the user uploaded a CSV file
             df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
+            columns = df.columns
+            data_types = df.dtypes
+
         elif 'xls' in filename:
             # Assume that the user uploaded an excel file
             df = pd.read_excel(io.BytesIO(decoded))
+            columns = df.columns
+            data_types = df.dtypes
+
     except Exception as e:
         print(e)
         return html.Div([
             'There was an error processing this file.'
         ])
 
-    # parse the
-    columns = df.columns
-    data_types = df.dtypes
-    # axes_options = []
+    # parse the numerical-based attributes from the first row
     if columns is not None:
         for i in range(len(columns)):
             if data_types[i] == 'int64' or data_types[i] == 'float64':
                 axes_options.append(columns[i])
 
+    data.append(df)
+    return df
 
+
+# Return a figure for the 3D version of K-Means
 def make_k_means_3d_graph(df):
     # 3D GRAPH: axes hard coded while testing in progress
     x_axis = '[SO4]2- [mg/l]'
@@ -345,6 +431,43 @@ def make_k_means_3d_graph(df):
     layout = go.Layout(margin=dict(l=0, r=0), scene=scene, height=800, width=800)
     data = [trace]
     fig_k_means = go.Figure(data=data, layout=layout)
+
+    return fig_k_means
+
+
+# Return a figure for the 2D version of K-Means
+def make_k_means_2d_graph(df):
+    algorithm = "K-Means"
+    x_axis = 'pH'
+    y_axis = '[SO4]2- [mg/l]'
+
+    # make a data frame from the csv data
+    x = df[[x_axis, y_axis]].values
+
+    # 3D scatter plot using Plotly
+    model = KMeans(n_clusters=4, init="k-means++", max_iter=300, n_init=10, random_state=0)
+    y_clusters = model.fit_predict(x)
+    labels = model.labels_
+
+    layout = go.Layout(title=algorithm,
+                       margin=dict(l=0, r=0),
+                       xaxis=dict(title=x_axis),
+                       yaxis=dict(title=y_axis),
+                       height=800,
+                       width=800)
+    fig_k_means = go.Figure(layout=layout)
+
+    fig_k_means.add_trace(go.Scatter(
+        x=x[:, 0], y=x[:, 1],
+        hovertext=[x_axis, y_axis],  # no attribute names :(
+        mode='markers',
+        marker=dict(color=labels, size=10)))
+
+    fig_k_means.update_layout(
+        hoverlabel=dict(
+            font_size=16,
+            font_family="Rockwell",
+        ))
 
     return fig_k_means
 
