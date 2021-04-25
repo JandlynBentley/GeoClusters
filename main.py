@@ -20,6 +20,8 @@ import pandas as pd
 
 from sklearn.cluster import KMeans
 import plotly.graph_objs as go
+import itertools
+from sklearn import mixture
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 markdown_text = '''
@@ -314,12 +316,18 @@ def main():
                 ]
 
             elif algorithm == 'GMM':
-                # call GMM
-                print("GMM not available yet.")
+                print("A GMM Graph will be made.")
+
+                # make a gmm 2D graph
+                fig = make_gmm_2d_graph(data[0], x, y)
 
                 children = [
                     html.Br(),
-                    html.H5("A " + str(algorithm) + " graph will be made (1).")
+                    html.H5("A " + str(algorithm) + " graph will be made (1)."),
+                    dcc.Graph(
+                        id='graph1',
+                        figure=fig
+                    )
                 ]
 
             elif algorithm == 'DBSCAN':
@@ -408,10 +416,6 @@ def parse_contents(contents, filename, date):
 
 # Return a figure for the 3D version of K-Means
 def make_k_means_3d_graph(df, x_axis, y_axis, z_axis):
-    # 3D GRAPH: axes hard coded while testing in progress
-    # x_axis = '[SO4]2- [mg/l]'
-    # y_axis = 'pH'
-    # z_axis = 'Depth well [m] (sample depth in m below groun...)'
 
     x = df[[x_axis, y_axis, z_axis]].values
     model = KMeans(n_clusters=4, init="k-means++", max_iter=300, n_init=10, random_state=0)
@@ -433,8 +437,6 @@ def make_k_means_3d_graph(df, x_axis, y_axis, z_axis):
 
 # Return a figure for the 2D version of K-Means
 def make_k_means_2d_graph(df, x_axis, y_axis):
-    # x_axis = 'pH'
-    # y_axis = '[SO4]2- [mg/l]'
 
     # make a data frame from the csv data
     x = df[[x_axis, y_axis]].values
@@ -465,6 +467,37 @@ def make_k_means_2d_graph(df, x_axis, y_axis):
         ))
 
     return fig_k_means
+
+
+# Return a figure for the 2D version of K-Means
+def make_gmm_2d_graph(df, x_axis, y_axis):
+
+    color_iter = itertools.cycle(['cornflowerblue', 'darkorange', 'red', 'teal', 'gold', 'violet'])
+    X = df[[x_axis, y_axis]].values
+
+    # Fit a Gaussian mixture with EM
+    gmm = mixture.GaussianMixture(n_components=4, covariance_type='full').fit(X)
+    cluster_labels = gmm.predict(X)
+
+    layout = go.Layout(title="GMM",
+                       margin=dict(l=0, r=0),
+                       xaxis=dict(title=x_axis),
+                       yaxis=dict(title=y_axis),
+                       height=800,
+                       width=800)
+    fig_gmm = go.Figure(layout=layout)
+
+    def plot_gmm_results(X, Y_, means, covariances, title):
+
+        for i, (mean, covar, color) in enumerate(zip(means, covariances, color_iter)):
+
+            fig_gmm.add_trace(go.Scatter(
+                x=X[Y_ == i, 0], y=X[Y_ == i, 1],
+                mode='markers',
+                marker=dict(color=color, size=10)))
+
+    plot_gmm_results(X, cluster_labels, gmm.means_, gmm.covariances_, 'Gaussian Mixture Model with EM')
+    return fig_gmm
 
 
 if __name__ == '__main__':
