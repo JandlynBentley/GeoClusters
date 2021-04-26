@@ -7,10 +7,8 @@ a data set file upload component, and (eventually) a clustering algorithm compar
 """
 
 import base64
-import datetime
 import io
 import dash
-import numpy as np
 from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
@@ -130,16 +128,17 @@ def main():
             Confirmed that the parsing function does indeed return a data frame as needed if it's indexed
             '''
 
-            # if criteria, critera: children = [ ... ]
-            # else: children = [ ... / ... ]
-
             alg1 = html.Div(alg_selection1())  # Algorithm selection dropdown
             graph2d3d = html.Div(graph_2d3d_selection1())  # 2D or 3D graph selection radio buttons
+            clusters = num_clusters_selection()  # Number of predicted clusters via radio buttons
+            axes = html.Div(axes_selection_xyz_1())
 
             children = [
                 # LEFT SIDE -------
                 alg1,
-                graph2d3d
+                graph2d3d,
+                clusters,
+                axes
 
                 # RIGHT SIDE -------
                 # coming soon
@@ -147,33 +146,22 @@ def main():
 
             return children
 
-    # For axes
-    @app.callback(Output('output-dropdown-area1_part2', 'children'),
-                  Input("2d3d_graph1", "value"),
-                  Input("dropdown_algorithm1", "value"))
-    def update_output_xyz(choice2d3d, algorithm):
-
-        children = [
-            html.Div(axes_selection_xyz_1())
-        ]
-
-        return children
-
     # Once x, y, z axes have been chosen, output a scatter plot to graph 1
     @app.callback(Output('output-graph-area1', 'children'),
                   Input("dropdown_algorithm1", "value"),
                   Input("2d3d_graph1", "value"),
                   Input('dd_x_1', 'value'),
                   Input('dd_y_1', 'value'),
-                  Input('dd_z_1', 'value'))
-    def update_output_graph1(algorithm, choice2d3d, x, y, z):
+                  Input('dd_z_1', 'value'),
+                  Input('clusters_selector1', 'value'))
+    def update_output_graph1(algorithm, choice2d3d, x, y, z, clusters):
 
         print("Algorithm is: " + str(algorithm))
         print("Choice of 2D or 3D is: " + str(choice2d3d))
         print("x is: " + str(x))
         print("y is: " + str(y))
         print("z is: " + str(z))
-        # print("testing...data frame should be: " + str(data[0]))
+        print("Number of clusters: " + str(clusters))
 
         alg_bool = algorithm is not None
         x_bool = x is not None
@@ -184,7 +172,7 @@ def main():
 
             if algorithm == 'K-Means':
                 print("TEST!!!!! A K-Means 2D Graph will be made.")
-                fig = make_k_means_2d_graph(data[0], x, y)
+                fig = make_k_means_2d_graph(data[0], x, y, clusters)
                 children = [
                     html.Br(),
                     html.H5("A " + str(algorithm) + " graph will be made (1)."),
@@ -195,7 +183,7 @@ def main():
                 ]
             elif algorithm == 'GMM':
                 print("TEST!!!!! A GMM 2D Graph will be made.")
-                fig = make_gmm_2d_graph(data[0], x, y)
+                fig = make_gmm_2d_graph(data[0], x, y, clusters)
                 children = [
                     html.Br(),
                     html.H5("A " + str(algorithm) + " graph will be made (1)."),
@@ -225,7 +213,7 @@ def main():
 
             if algorithm == 'K-Means':
                 print("A K-Means 3D Graph will be made.")
-                fig = make_k_means_3d_graph(data[0], x, y, z)
+                fig = make_k_means_3d_graph(data[0], x, y, z, clusters)
 
                 children = [
                     html.Br(),
@@ -322,9 +310,10 @@ def parse_contents(contents, filename, date):
 
 
 # Return a figure for the 3D version of K-Means
-def make_k_means_3d_graph(df, x_axis, y_axis, z_axis):
+def make_k_means_3d_graph(df, x_axis, y_axis, z_axis, clusters):
+
     x = df[[x_axis, y_axis, z_axis]].values
-    model = KMeans(n_clusters=4, init="k-means++", max_iter=300, n_init=10, random_state=0)
+    model = KMeans(n_clusters=clusters, init="k-means++", max_iter=300, n_init=10, random_state=0)
     y_clusters = model.fit_predict(x)
 
     # 3D scatter plot using Plotly
@@ -346,13 +335,14 @@ def make_k_means_3d_graph(df, x_axis, y_axis, z_axis):
 
 
 # Return a figure for the 2D version of K-Means
-def make_k_means_2d_graph(df, x_axis, y_axis):
+def make_k_means_2d_graph(df, x_axis, y_axis, clusters):
 
     # make a data frame from the csv data
     x = df[[x_axis, y_axis]].values
 
     # 3D scatter plot using Plotly
-    model = KMeans(n_clusters=4, init="k-means++", max_iter=300, n_init=10, random_state=0)
+    # model = KMeans(n_clusters=4, init="k-means++", max_iter=300, n_init=10, random_state=0)
+    model = KMeans(n_clusters=clusters, init="k-means++", max_iter=300, n_init=10, random_state=0)
     y_clusters = model.fit_predict(x)
     labels = model.labels_
 
@@ -380,12 +370,13 @@ def make_k_means_2d_graph(df, x_axis, y_axis):
 
 
 # Return a figure for the 2D version of K-Means
-def make_gmm_2d_graph(df, x_axis, y_axis):
+def make_gmm_2d_graph(df, x_axis, y_axis, clusters):
+
     color_iter = itertools.cycle(['cornflowerblue', 'darkorange', 'red', 'teal', 'gold', 'violet'])
     X = df[[x_axis, y_axis]].values
 
     # Fit a Gaussian mixture with EM
-    gmm = mixture.GaussianMixture(n_components=4, covariance_type='full').fit(X)
+    gmm = mixture.GaussianMixture(n_components=clusters, covariance_type='full').fit(X)
     cluster_labels = gmm.predict(X)
 
     layout = go.Layout(title="GMM",
@@ -428,6 +419,28 @@ def alg_selection1():
             }
         ),
     ]),
+
+
+def num_clusters_selection():
+    return html.Div([
+        html.H5("Select the number of predicted clusters (will be applied to K-Means and GMM only)"),
+        dcc.RadioItems(
+            id='clusters_selector1',
+            options=[
+                {'label': '2', 'value': 2},
+                {'label': '3', 'value': 3},
+                {'label': '4', 'value': 4},
+                {'label': '5', 'value': 5},
+                {'label': '6', 'value': 6},
+                {'label': '7', 'value': 7},
+                {'label': '8', 'value': 8}
+
+            ],
+            value=2,
+            labelStyle={'display': 'inline-block'}
+        ),
+        html.Br()
+    ])
 
 
 # Return a Div container that contains 2D or 3D graph choice selection dropdown
