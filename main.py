@@ -168,6 +168,7 @@ def main():
         y_bool = y is not None
         z_bool = z is not None
 
+        # Make a 2D graph
         if alg_bool and (choice2d3d == '2D') and x_bool and y_bool:
 
             if algorithm == 'K-Means':
@@ -206,7 +207,7 @@ def main():
                     html.H5("A " + str(algorithm) + " graph will be made (1).")
                 ]
 
-        # include check for IFF x, y, and z all have values, then make the graph
+        # Make a 3D graph
         elif alg_bool and (choice2d3d == '3D') and x_bool and y_bool and z_bool:
 
             print("A Graph for " + str(algorithm) + " will be made:")
@@ -223,26 +224,29 @@ def main():
                         figure=fig
                     ),
                 ]
+            elif algorithm == 'GMM':
+                print("TEST!!!!! GMM 3D Graph is not available yet.")
+                fig = make_gmm_3d_graph(data[0], x, y, z, clusters)
+                children = [
+                    html.Br(),
+                    html.H5("A GMM 3D Graph will be made (1)."),
+                    dcc.Graph(
+                        id='graph1',
+                        figure=fig
+                    )
+                ]
             elif algorithm == 'Mean-Shift':
                 print("TEST!!!!! Mean-Shift 3D Graph is not available yet.")
                 children = [
                     html.Br(),
                     html.H5("A 3D Graph will be made. (1).")
                 ]
-
             # NO 3D Options Available:
             elif algorithm == 'DBSCAN':
                 print("TEST!!!!! DBSCAN 3D Graph is not available.")
                 children = [
                     html.Br(),
                     html.H5("A DBSCAN 3D Graph is not available. Please make another selection.")
-                ]
-            # NO 3D Options Available:
-            elif algorithm == 'GMM':
-                print("TEST!!!!! GMM 3D Graph is not available yet.")
-                children = [
-                    html.Br(),
-                    html.H5("A GMM 3D Graph is not available. Please make another selection.")
                 ]
 
         return children
@@ -369,7 +373,7 @@ def make_k_means_2d_graph(df, x_axis, y_axis, clusters):
     return fig_k_means
 
 
-# Return a figure for the 2D version of K-Means
+# Return a figure for the 2D version of GMM
 def make_gmm_2d_graph(df, x_axis, y_axis, clusters):
 
     color_iter = itertools.cycle(['cornflowerblue', 'darkorange', 'red', 'teal', 'gold', 'violet'])
@@ -395,6 +399,39 @@ def make_gmm_2d_graph(df, x_axis, y_axis, clusters):
                 marker=dict(color=color, size=10)))
 
     plot_gmm_results(X, cluster_labels, gmm.means_, gmm.covariances_, 'Gaussian Mixture Model with EM')
+    return fig_gmm
+
+
+# Return a figure for the 3D version of GMM
+def make_gmm_3d_graph(df, x_axis, y_axis, z_axis, clusters):
+
+    color_iter = itertools.cycle(['cornflowerblue', 'darkorange', 'red', 'teal', 'gold', 'violet'])
+    X = df[[x_axis, y_axis, z_axis]].values
+
+    scene = dict(xaxis=dict(title=x_axis + ' <---'), yaxis=dict(title=y_axis + ' --->'),
+                 zaxis=dict(title=z_axis + ' <---'))
+
+    # Fit a Gaussian mixture with EM
+    # n_components is the number of mixture components
+    # covariance_type = FULL: each component has its own general covariance matrix
+    gmm = mixture.GaussianMixture(n_components=clusters, covariance_type='full').fit(X)
+    Y_ = gmm.predict(X)
+    means = gmm.means_
+    covariances = gmm.covariances_
+
+    layout = go.Layout(title='Gaussian Mixture Model with EM',
+                       margin=dict(l=0, r=0),
+                       scene=scene,
+                       height=800,
+                       width=800)
+    fig_gmm = go.Figure(layout=layout)
+
+    for i, (mean, covar, color) in enumerate(zip(means, covariances, color_iter)):
+        fig_gmm.add_trace(go.Scatter3d(
+            x=X[Y_ == i, 0], y=X[Y_ == i, 1], z=X[Y_ == i, 2],
+            mode='markers',
+            marker=dict(color=color, size=10)))
+
     return fig_gmm
 
 
