@@ -12,105 +12,152 @@ import dash
 from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
-import pandas as pd
 
+import pandas as pd
 from sklearn.cluster import KMeans
 import plotly.graph_objs as go
 import itertools
 from sklearn import mixture
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-markdown_text = '''
----
-### GeoClusters is a visual tool for geoscientists to view their data under various clustering algorithms in real time.
-&nbsp
-To begin, drag or drop a preprocessed CSV or Excel file into the upload area.
-Your data set must include only the data tiles in the first row and columns of data.
-Next, choose from the drop down menu to compare clustering algorithms.
-A data table will also be provided at the bottom of the app for reference.
+markdown_text1 = '''
+GeoClusters is a visual tool for geoscientists to view their data under various clustering algorithms in real time.
+
+To use the clustering comparative tool:
+&nbsp;
+
+    * Drag and drop or select a preprocessed CSV or Excel file in the blue upload area. 
+    * This file should have all preceding and trailing comments removed so only the column names and column data remain.
+    * Choose from the drop down menus to compare clustering algorithms on your data.
+
 The code for this open-source tool can be found on [Github](https://github.com/JandlynBentley/GeoClusters).
 '''
 axes_options = []
 data = []
-global global_2d_3d
 
 
 def main():
     app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+
+    # Div 0: holds everything on the web page
     app.layout = html.Div([
 
-        html.H1(
-            children='GeoClusters',
-            style={
-                'textAlign': 'center'
-            }
-        ),
-
-        # Instructions to the user displayed with markdown
-        dcc.Markdown(
-            children=markdown_text,
-            style={
-                'textAlign': 'center'
-            }
-        ),
-
-        html.Br(),
-
-        # Container for all the dropdowns and radio buttons
+        # Div 1: Holds Title, Sub-title, and instructions
         html.Div([
-            html.Div(
-                id='output-dropdown-area1',
-                style={'width': '50%'}
+            html.H1(
+                children='GeoClusters',
+                style={
+                    'color': 'green',
+                    'textAlign': 'center'
+                }
             ),
-            html.Div(
-                id='output-dropdown-area1_part2',
-                style={'width': '50%'}
+            html.H3(
+                children='A Comparative Cluster Analysis Tool',
+                style={
+                    'textAlign': 'center'
+                }
             ),
-        ]),
+            html.Br(),
 
-        # Container for the graphs
+            # Instructions to the user displayed with markdown
+            dcc.Markdown(
+                children=markdown_text1,
+                style={
+                    'textAlign': 'left',
+                    'width': '50%'
+                }
+            ),
+            html.Br(),
+        ]),  # Div 1 ends
+
+        # ************************************************************************************************
+        # Div 2: Holds The comparative tool
         html.Div([
-            html.Div(
-                id='output-graph-area1',
-                style={'width': '50%',
-                       'display': 'inline-block'},
-            ),
-            html.Div(
-                id='output-graph-area2',
-                style={'width': '50%',
-                       'display': 'inline-block'},
-            ),
+
+            # Div 2.5: Holds all the interactive components and graph (left and right side)
+            html.Div([
+
+                # LEFT SIDE
+                html.Div([
+                    # container for the left interactive elements
+                    html.Div(
+                        id='output-dropdown-area1',
+                        style={'width': '50%'}
+                    )
+                ]),
+                html.Br(),
+
+                # Container for the left graph
+                html.Div([
+                    html.Div(
+                        id='output-graph-area1',
+                        style={'width': '50%',
+                               'display': 'inline-block'},
+                    )
+                ]),
+                html.Br(),
+
+                # RIGHT SIDE
+                html.Div([
+                    # container for the right interactive elements
+                    html.Div(
+                        id='output-dropdown-area2',
+                        style={'width': '50%'}
+                    )
+                ]),
+                html.Br(),
+
+                # Container for the right graph
+                html.Div([
+                    html.Div(
+                        id='output-graph-area2',
+                        style={'width': '50%',
+                               'display': 'inline-block'},
+                    )
+                ]),
+                html.Br(),
+
+            ],
+                # Set all of the interactive components and graphs into two columns
+                style={
+                    'columnCount': 2,
+                    'columnGap': '100px'
+                }
+            )
+
         ]),
+        # ************************************************************************************************
 
-        html.Br(),
+        # Div 3: Holds the upload tool
+        html.Div([
+            # Container for file upload component
+            dcc.Upload(
+                id='upload-data',
+                children=html.Div([
+                    'Drag and Drop or ',
+                    html.A('Select Files'),
+                    html.Center()
+                ]),
+                style={
+                    'width': '50%',
+                    'height': '60px',
+                    'lineHeight': '60px',
+                    'borderWidth': '1px',
+                    'borderStyle': 'dashed',
+                    'borderRadius': '100px',
+                    'textAlign': 'center',
+                    'margin-top': '10px',
+                    'margin-left': '25%',
+                    'margin-bottom': '10px',
+                    'backgroundColor': '#d6f5f5',
+                },
+                # Allow multiple files to be uploaded
+                multiple=True
+            ),
+            html.Br()
+        ])
 
-        # Container for file upload component
-        dcc.Upload(
-            id='upload-data',
-            children=html.Div([
-                'Drag and Drop or ',
-                html.A('Select Files'),
-                html.Center()
-            ]),
-            style={
-                'width': '50%',
-                'height': '60px',
-                'lineHeight': '60px',
-                'borderWidth': '1px',
-                'borderStyle': 'dashed',
-                'borderRadius': '100px',
-                'textAlign': 'center',
-                'margin-top': '10px',
-                'margin-left': '25%',
-                'margin-bottom': '10px',
-                'backgroundColor': '#d6f5f5',
-            },
-            # Allow multiple files to be uploaded
-            multiple=True
-        ),
-
-        html.Br()
-    ])
+    ])  # end of app layout
 
     # Given the data set from Upload, parse the data into a data frame and collect axis options
     # Also return axis dropdowns for x, y, and z
@@ -125,26 +172,64 @@ def main():
             '''
             The parsing function takes in a data set, collects and stores the attributes in a global variable
             to be used for the axes' dropdown options, and returns the data set as a Pandas data frame.
-            Confirmed that the parsing function does indeed return a data frame as needed if it's indexed
+            Confirmed that the parsing function returns a data frame as needed if it's indexed.
             '''
 
+            # Left side
             alg1 = html.Div(alg_selection1())  # Algorithm selection dropdown
-            graph2d3d = html.Div(graph_2d3d_selection1())  # 2D or 3D graph selection radio buttons
-            clusters = num_clusters_selection()  # Number of predicted clusters via radio buttons
-            axes = html.Div(axes_selection_xyz_1())
+            graph2d3d_1 = html.Div(graph_2d3d_selection1())  # 2D or 3D graph selection radio buttons
+            clusters1 = num_clusters_selection1()  # Number of predicted clusters via radio buttons
+            axes1 = html.Div(axes_selection_xyz_1())
+
+            # Right side
+            alg2 = html.Div(alg_selection2())  # Algorithm selection dropdown
+            graph2d3d_2 = html.Div(graph_2d3d_selection2())  # 2D or 3D graph selection radio buttons
+            clusters2 = num_clusters_selection2()  # Number of predicted clusters via radio buttons
+            axes2 = html.Div(axes_selection_xyz_2())
 
             children = [
                 # LEFT SIDE -------
+                html.H5(
+                    children='--- First Algorithm ---',
+                    style={
+                        'textAlign': 'center'
+                    }
+                ),
+
                 alg1,
-                graph2d3d,
-                clusters,
-                axes
+                graph2d3d_1,
+                clusters1,
+                axes1,
+
+                html.Br(),
+                html.Br(),
+
+                html.H5(
+                    children='---------------------------------------------------------------------------------------',
+                    style={
+                        'textAlign': 'left'
+                    }
+                ),
+
+                html.Br(),
 
                 # RIGHT SIDE -------
-                # coming soon
+                html.H5(
+                    children='--- Second Algorithm ---',
+                    style={
+                        'textAlign': 'center'
+                    }
+                ),
+
+                alg2,
+                graph2d3d_2,
+                clusters2,
+                axes2,
             ]
 
             return children
+
+    # LEFT GRAPH -----------------------------------------------------------------------------------------------
 
     # Once x, y, z axes have been chosen, output a scatter plot to graph 1
     @app.callback(Output('output-graph-area1', 'children'),
@@ -246,33 +331,123 @@ def main():
                 print("TEST!!!!! DBSCAN 3D Graph is not available.")
                 children = [
                     html.Br(),
-                    html.H5("A DBSCAN 3D Graph is not available. Please make another selection.")
+                    html.H5("A DBSCAN 3D Graph is not available. Please make another selection (1).")
                 ]
 
         return children
 
-    # # Once x, y, z axes have been chosen, output a scatter plot to graph 2
-    # @app.callback(Output('output-graph-area2', 'children'),
-    #               Input('dd_x_2', 'value'),
-    #               Input('dd_y_2', 'value'),
-    #               Input('dd_z_2', 'value'))
-    # def update_output_graph2(x, y, z):
-    #
-    #     # include check for IFF x, y, and z all have values, then make the graph
-    #     if (x is not None) and (y is not None) and (z is not None):
-    #         print("Graph would be called, and x is: " + str(x))
-    #         print("Graph would be called, and y is: " + str(y))
-    #         print("Graph would be called, and z is: " + str(z))
-    #
-    #         children = [
-    #             # graph (eventually: depends on which algorithm was selected)
-    #             html.H5("A graph will be made (2).")
-    #         ]
-    #         return children
+    # RIGHT GRAPH -----------------------------------------------------------------------------------------------
 
-    # Run the app
+    # Once x, y, z axes have been chosen, output a scatter plot to graph 1
+    @app.callback(Output('output-graph-area2', 'children'),
+                  Input("dropdown_algorithm2", "value"),
+                  Input("2d3d_graph2", "value"),
+                  Input('dd_x_2', 'value'),
+                  Input('dd_y_2', 'value'),
+                  Input('dd_z_2', 'value'),
+                  Input('clusters_selector2', 'value'))
+    def update_output_graph2(algorithm, choice2d3d, x, y, z, clusters):
+
+        print("Algorithm right is: " + str(algorithm))
+        print("Choice of 2D or 3D right is: " + str(choice2d3d))
+        print("x right is: " + str(x))
+        print("y right is: " + str(y))
+        print("z right is: " + str(z))
+        print("Number of clusters right: " + str(clusters))
+
+        alg_bool = algorithm is not None
+        x_bool = x is not None
+        y_bool = y is not None
+        z_bool = z is not None
+
+        # Make a 2D graph
+        if alg_bool and (choice2d3d == '2D') and x_bool and y_bool:
+
+            if algorithm == 'K-Means':
+                print("TEST!!!!! A K-Means 2D Graph will be made.")
+                fig = make_k_means_2d_graph(data[0], x, y, clusters)
+                children = [
+                    html.Br(),
+                    html.H5("A " + str(algorithm) + " graph will be made (2)."),
+                    dcc.Graph(
+                        id='graph2',
+                        figure=fig
+                    ),
+                ]
+            elif algorithm == 'GMM':
+                print("TEST!!!!! A GMM 2D Graph will be made.")
+                fig = make_gmm_2d_graph(data[0], x, y, clusters)
+                children = [
+                    html.Br(),
+                    html.H5("A " + str(algorithm) + " graph will be made (2)."),
+                    dcc.Graph(
+                        id='graph2',
+                        figure=fig
+                    )
+                ]
+            elif algorithm == 'DBSCAN':
+                print("TEST!!!!! DBSCAN 2D Graph not available yet.")
+                children = [
+                    html.Br(),
+                    html.H5("A " + str(algorithm) + " graph will be made (2).")
+                ]
+
+            elif algorithm == 'Mean-Shift':
+                print("TEST!!!!! Mean-Shift 2D Graph not available yet.")
+                children = [
+                    html.Br(),
+                    html.H5("A " + str(algorithm) + " graph will be made (2).")
+                ]
+
+        # Make a 3D graph
+        elif alg_bool and (choice2d3d == '3D') and x_bool and y_bool and z_bool:
+
+            print("A Graph for " + str(algorithm) + " will be made:")
+
+            if algorithm == 'K-Means':
+                print("A K-Means 3D Graph will be made.")
+                fig = make_k_means_3d_graph(data[0], x, y, z, clusters)
+
+                children = [
+                    html.Br(),
+                    html.H5("A K-Means 3D Graph will be made (2)."),
+                    dcc.Graph(
+                        id='graph2',
+                        figure=fig
+                    ),
+                ]
+            elif algorithm == 'GMM':
+                print("TEST!!!!! GMM 3D Graph is not available yet.")
+                fig = make_gmm_3d_graph(data[0], x, y, z, clusters)
+                children = [
+                    html.Br(),
+                    html.H5("A GMM 3D Graph will be made (2)."),
+                    dcc.Graph(
+                        id='graph2',
+                        figure=fig
+                    )
+                ]
+            elif algorithm == 'Mean-Shift':
+                print("TEST!!!!! Mean-Shift 3D Graph is not available yet.")
+                children = [
+                    html.Br(),
+                    html.H5("A 3D Graph will be made. (2).")
+                ]
+            # NO 3D Options Available:
+            elif algorithm == 'DBSCAN':
+                print("TEST!!!!! DBSCAN 3D Graph is not available.")
+                children = [
+                    html.Br(),
+                    html.H5("A DBSCAN 3D Graph is not available. Please make another selection (2).")
+                ]
+
+        return children
+
+    # **************************************** Run the app ****************************************
     app.run_server(debug=True, dev_tools_ui=False)
 
+
+# FUNCTIONS ---------------------------------------------------------------------------------------------------
 
 # Given a file, parse the contents into a scatter plot
 def parse_contents(contents, filename, date):
@@ -332,8 +507,8 @@ def make_k_means_3d_graph(df, x_axis, y_axis, z_axis, clusters):
                        scene=scene,
                        height=800,
                        width=800)
-    data = [trace]
-    fig_k_means = go.Figure(data=data, layout=layout)
+    graph_data = [trace]
+    fig_k_means = go.Figure(data=graph_data, layout=layout)
 
     return fig_k_means
 
@@ -354,8 +529,8 @@ def make_k_means_2d_graph(df, x_axis, y_axis, clusters):
                        margin=dict(l=0, r=0),
                        xaxis=dict(title=x_axis),
                        yaxis=dict(title=y_axis),
-                       height=800,
-                       width=800)
+                       height=600,
+                       width=600)
     fig_k_means = go.Figure(layout=layout)
 
     fig_k_means.add_trace(go.Scatter(
@@ -387,8 +562,8 @@ def make_gmm_2d_graph(df, x_axis, y_axis, clusters):
                        margin=dict(l=0, r=0),
                        xaxis=dict(title=x_axis),
                        yaxis=dict(title=y_axis),
-                       height=800,
-                       width=800)
+                       height=600,
+                       width=600)
     fig_gmm = go.Figure(layout=layout)
 
     def plot_gmm_results(X, Y_, means, covariances, title):
@@ -435,6 +610,8 @@ def make_gmm_3d_graph(df, x_axis, y_axis, z_axis, clusters):
     return fig_gmm
 
 
+# LEFT COMPONENTS ---------------------------------------------------------------------------------------------------
+
 # Return a Div container that contains algorithm selection dropdown
 def alg_selection1():
     return html.Div([
@@ -458,7 +635,7 @@ def alg_selection1():
     ]),
 
 
-def num_clusters_selection():
+def num_clusters_selection1():
     return html.Div([
         html.H5("Select the number of predicted clusters (will be applied to K-Means and GMM only)"),
         dcc.RadioItems(
@@ -527,6 +704,112 @@ def axes_selection_xyz_1():
         dcc.Dropdown(
             id="dd_z_1",
             placeholder='Select Z-axis attribute 1',
+            options=[{'label': i, 'value': i} for i in axes_options],
+            style={
+                'width': '50%',
+                'lineHeight': '30px',
+                'borderWidth': '1px',
+                'textAlign': 'left'
+            }
+        ),
+        html.Br()
+    ]),
+
+
+# RIGHT COMPONENTS ---------------------------------------------------------------------------------------------------
+
+# Return a Div container that contains algorithm selection dropdown
+def alg_selection2():
+    return html.Div([
+        html.H5("Algorithm Selection"),
+        dcc.Dropdown(
+            id="dropdown_algorithm2",
+            options=[{'label': 'K-Means', 'value': 'K-Means'},
+                     {'label': 'GMM', 'value': 'GMM'},
+                     {'label': 'DBSCAN', 'value': 'DBSCAN'},
+                     {'label': 'Mean-Shift', 'value': 'Mean-Shift'}
+                     ],
+            placeholder='Select an algorithm',
+            style={
+                'width': '50%',
+                'display': 'inline-block',
+                'lineHeight': '30px',
+                'borderWidth': '1px',
+                'textAlign': 'left'
+            }
+        ),
+    ]),
+
+
+def num_clusters_selection2():
+    return html.Div([
+        html.H5("Select the number of predicted clusters (will be applied to K-Means and GMM only)"),
+        dcc.RadioItems(
+            id='clusters_selector2',
+            options=[
+                {'label': '2', 'value': 2},
+                {'label': '3', 'value': 3},
+                {'label': '4', 'value': 4},
+                {'label': '5', 'value': 5},
+                {'label': '6', 'value': 6},
+                {'label': '7', 'value': 7},
+                {'label': '8', 'value': 8}
+
+            ],
+            value=2,
+            labelStyle={'display': 'inline-block'}
+        ),
+        html.Br()
+    ])
+
+
+# Return a Div container that contains 2D or 3D graph choice selection dropdown
+def graph_2d3d_selection2():
+    return html.Div([
+        html.H5("Select a 2D or 3D graph"),
+        dcc.RadioItems(
+            id='2d3d_graph2',
+            options=[
+                {'label': '2D', 'value': '2D'},
+                {'label': '3D', 'value': '3D'}
+            ],
+            value='2D',
+            labelStyle={'display': 'inline-block'}),
+        html.Br()
+    ])
+
+
+# Return a Div container that contains axis selection dropdowns for x, y, and z (3D)
+def axes_selection_xyz_2():
+    return html.Div([
+        html.H5("X-Axis"),
+        dcc.Dropdown(
+            id="dd_x_2",
+            placeholder='Select X-axis attribute 2',
+            options=[{'label': i, 'value': i} for i in axes_options],
+            style={
+                'width': '50%',
+                'lineHeight': '30px',
+                'borderWidth': '1px',
+                'textAlign': 'left'
+            },
+        ),
+        html.H5("Y-Axis"),
+        dcc.Dropdown(
+            id="dd_y_2",
+            placeholder='Select Y-axis attribute 2',
+            options=[{'label': i, 'value': i} for i in axes_options],
+            style={
+                'width': '50%',
+                'lineHeight': '30px',
+                'borderWidth': '1px',
+                'textAlign': 'left'
+            },
+        ),
+        html.H5("Z-Axis"),
+        dcc.Dropdown(
+            id="dd_z_2",
+            placeholder='Select Z-axis attribute 2',
             options=[{'label': i, 'value': i} for i in axes_options],
             style={
                 'width': '50%',
