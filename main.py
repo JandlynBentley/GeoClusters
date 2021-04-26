@@ -1,9 +1,7 @@
 """
 Capstone Project: GeoClusters
 Written by: Jandlyn Bentley, Bridgewater State University, 2021
-
 This program is the primary program for the GeoClusters Dash web app.
-
 Here the Dash app is established, with basic instructions on how to use the open-source tool,
 a data set file upload component, and (eventually) a clustering algorithm comparison component.
 """
@@ -27,13 +25,11 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 markdown_text = '''
 ---
 ### GeoClusters is a visual tool for geoscientists to view their data under various clustering algorithms in real time.
-
 &nbsp
 To begin, drag or drop a preprocessed CSV or Excel file into the upload area.
 Your data set must include only the data tiles in the first row and columns of data.
 Next, choose from the drop down menu to compare clustering algorithms.
 A data table will also be provided at the bottom of the app for reference.
-
 The code for this open-source tool can be found on [Github](https://github.com/JandlynBentley/GeoClusters).
 '''
 axes_options = []
@@ -131,7 +127,6 @@ def main():
             '''
             The parsing function takes in a data set, collects and stores the attributes in a global variable
             to be used for the axes' dropdown options, and returns the data set as a Pandas data frame.
-
             Confirmed that the parsing function does indeed return a data frame as needed if it's indexed
             '''
 
@@ -240,12 +235,26 @@ def main():
                         figure=fig
                     ),
                 ]
-
             elif algorithm == 'Mean-Shift':
                 print("TEST!!!!! Mean-Shift 3D Graph is not available yet.")
                 children = [
                     html.Br(),
-                    html.H5("A Mean-Shift 3D Graph will be made (1).")
+                    html.H5("A 3D Graph will be made. (1).")
+                ]
+
+            # NO 3D Options Available:
+            elif algorithm == 'DBSCAN':
+                print("TEST!!!!! DBSCAN 3D Graph is not available.")
+                children = [
+                    html.Br(),
+                    html.H5("A DBSCAN 3D Graph is not available. Please make another selection.")
+                ]
+            # NO 3D Options Available:
+            elif algorithm == 'GMM':
+                print("TEST!!!!! GMM 3D Graph is not available yet.")
+                children = [
+                    html.Br(),
+                    html.H5("A GMM 3D Graph is not available. Please make another selection.")
                 ]
 
         return children
@@ -325,7 +334,11 @@ def make_k_means_3d_graph(df, x_axis, y_axis, z_axis):
     trace = go.Scatter3d(x=x[:, 0], y=x[:, 1], z=x[:, 2],
                          mode='markers',
                          marker=dict(color=labels, size=10, line=dict(color='black', width=10)))
-    layout = go.Layout(margin=dict(l=0, r=0), scene=scene, height=800, width=800)
+    layout = go.Layout(title="K-Means",
+                       margin=dict(l=0, r=0),
+                       scene=scene,
+                       height=800,
+                       width=800)
     data = [trace]
     fig_k_means = go.Figure(data=data, layout=layout)
 
@@ -334,6 +347,7 @@ def make_k_means_3d_graph(df, x_axis, y_axis, z_axis):
 
 # Return a figure for the 2D version of K-Means
 def make_k_means_2d_graph(df, x_axis, y_axis):
+
     # make a data frame from the csv data
     x = df[[x_axis, y_axis]].values
 
@@ -352,7 +366,7 @@ def make_k_means_2d_graph(df, x_axis, y_axis):
 
     fig_k_means.add_trace(go.Scatter(
         x=x[:, 0], y=x[:, 1],
-        hovertext=[x_axis, y_axis],  # no attribute names :(
+        hovertext=[x_axis, y_axis],  # no attribute names displayed :(
         mode='markers',
         marker=dict(color=labels, size=10)))
 
@@ -470,37 +484,6 @@ def axes_selection_xyz_1():
                 'borderWidth': '1px',
                 'textAlign': 'left'
             }
-        ),
-        html.Br()
-    ]),
-
-
-# Return a Div container that contains axis selection dropdowns for x, and y (2D)
-def axes_selection_xy_1():
-    return html.Div([
-        html.H5("X-Axis"),
-        dcc.Dropdown(
-            id="dd_x_1",
-            placeholder='Select X-axis attribute 1',
-            options=[{'label': i, 'value': i} for i in axes_options],
-            style={
-                'width': '50%',
-                'lineHeight': '30px',
-                'borderWidth': '1px',
-                'textAlign': 'left'
-            },
-        ),
-        html.H5("Y-Axis"),
-        dcc.Dropdown(
-            id="dd_y_1",
-            placeholder='Select Y-axis attribute 1',
-            options=[{'label': i, 'value': i} for i in axes_options],
-            style={
-                'width': '50%',
-                'lineHeight': '30px',
-                'borderWidth': '1px',
-                'textAlign': 'left'
-            },
         ),
         html.Br()
     ]),
