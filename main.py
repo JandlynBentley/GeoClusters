@@ -1,9 +1,10 @@
 """
 Capstone Project: GeoClusters
 Written by: Jandlyn Bentley, Bridgewater State University, 2021
+
 This program is the primary program for the GeoClusters Dash web app.
 Here the Dash app is established, with basic instructions on how to use the open-source tool,
-a data set file upload component, and (eventually) a clustering algorithm comparison component.
+a data set file upload component, and a clustering algorithm comparison component.
 """
 
 import base64
@@ -28,7 +29,8 @@ To use the clustering comparative tool:
 
     * Drag and drop or select a preprocessed CSV or Excel file in the blue upload area. 
     * This file should have all preceding and trailing comments removed so only the column names and column data remain.
-    * Choose from the drop down menus to compare clustering algorithms on your data.
+    * Choose from the drop down menus to compare clustering algorithms on your data. 
+    * Note: Algorithm, 2D / 3D, and required number of axes choices must all the selected for a graph to update.
 
 The code for this open-source tool can be found on [Github](https://github.com/JandlynBentley/GeoClusters).
 '''
@@ -74,10 +76,8 @@ def main():
         # Div 2: Holds The comparative tool
         html.Div([
 
-            # container for the interactive elements
+            # LEFT SIDE: a container for the interactive elements
             html.Div([
-
-                # LEFT SIDE
                 html.Div([
                     html.Div(
                         id='output-dropdown-area1',
@@ -92,7 +92,7 @@ def main():
                 }
             ),
 
-            # Container for the graphs
+            # RIGHT SIDE: a container for the graphs
             html.Div([
 
                 html.Div([
@@ -117,7 +117,7 @@ def main():
                 }
             )
 
-        ]), # Div 2 ends
+        ]),  # Div 2 ends
         # ************************************************************************************************
 
         # Div 3: Holds the upload tool
@@ -159,12 +159,11 @@ def main():
     def update_input_dropdown(list_of_contents, list_of_names, list_of_dates):
 
         if list_of_contents is not None:
-            data_frame = [parse_contents(c, n, d) for c, n, d in zip(list_of_contents, list_of_names, list_of_dates)]
             '''
             The parsing function takes in a data set, collects and stores the attributes in a global variable
-            to be used for the axes' dropdown options, and returns the data set as a Pandas data frame.
-            Confirmed that the parsing function returns a data frame as needed if it's indexed.
+            to be used for the axes' dropdown options, as well as a storing the data frame in another global variable.
             '''
+            data_frame = [parse_contents(c, n, d) for c, n, d in zip(list_of_contents, list_of_names, list_of_dates)]
 
             # Left side
             alg1 = html.Div(alg_selection1())  # Algorithm selection dropdown
@@ -184,7 +183,7 @@ def main():
                 html.H5(
                     children='-------- First Algorithm --------',
                     style={
-                        'color': 'blue',
+                        'color': 'green',
                         'textAlign': 'center'
                     }
                 ),
@@ -197,7 +196,7 @@ def main():
                 html.H5(
                     children='-------- Second Algorithm --------',
                     style={
-                        'color': 'blue',
+                        'color': 'green',
                         'textAlign': 'center'
                     }
                 ),
@@ -221,13 +220,6 @@ def main():
                   Input('clusters_selector1', 'value'))
     def update_output_graph1(algorithm, choice2d3d, x, y, z, clusters):
 
-        print("Algorithm is: " + str(algorithm))
-        print("Choice of 2D or 3D is: " + str(choice2d3d))
-        print("x is: " + str(x))
-        print("y is: " + str(y))
-        print("z is: " + str(z))
-        print("Number of clusters: " + str(clusters))
-
         alg_bool = algorithm is not None
         x_bool = x is not None
         y_bool = y is not None
@@ -237,81 +229,65 @@ def main():
         if alg_bool and (choice2d3d == '2D') and x_bool and y_bool:
 
             if algorithm == 'K-Means':
-                print("TEST!!!!! A K-Means 2D Graph will be made.")
                 fig = make_k_means_2d_graph(data[0], x, y, clusters)
                 children = [
                     html.Br(),
-                    html.H5("A " + str(algorithm) + " graph will be made (1)."),
                     dcc.Graph(
                         id='graph1',
                         figure=fig
                     ),
                 ]
             elif algorithm == 'GMM':
-                print("TEST!!!!! A GMM 2D Graph will be made.")
                 fig = make_gmm_2d_graph(data[0], x, y, clusters)
                 children = [
                     html.Br(),
-                    html.H5("A " + str(algorithm) + " graph will be made (1)."),
                     dcc.Graph(
                         id='graph1',
                         figure=fig
                     )
                 ]
             elif algorithm == 'DBSCAN':
-                print("TEST!!!!! DBSCAN 2D Graph not available yet.")
                 children = [
                     html.Br(),
-                    html.H5("A " + str(algorithm) + " graph will be made (1).")
+                    html.H5("A " + str(algorithm) + " graph is not available yet. Coming soon.")
                 ]
-
             elif algorithm == 'Mean-Shift':
-                print("TEST!!!!! Mean-Shift 2D Graph not available yet.")
                 children = [
                     html.Br(),
-                    html.H5("A " + str(algorithm) + " graph will be made (1).")
+                    html.H5("A " + str(algorithm) + " graph is not available yet. Coming soon.")
                 ]
 
         # Make a 3D graph
         elif alg_bool and (choice2d3d == '3D') and x_bool and y_bool and z_bool:
 
-            print("A Graph for " + str(algorithm) + " will be made:")
-
             if algorithm == 'K-Means':
-                print("A K-Means 3D Graph will be made.")
                 fig = make_k_means_3d_graph(data[0], x, y, z, clusters)
-
                 children = [
                     html.Br(),
-                    html.H5("A K-Means 3D Graph will be made (1)."),
                     dcc.Graph(
                         id='graph1',
                         figure=fig
                     ),
                 ]
             elif algorithm == 'GMM':
-                print("TEST!!!!! GMM 3D Graph is not available yet.")
                 fig = make_gmm_3d_graph(data[0], x, y, z, clusters)
                 children = [
                     html.Br(),
-                    html.H5("A GMM 3D Graph will be made (1)."),
                     dcc.Graph(
                         id='graph1',
                         figure=fig
                     )
                 ]
             elif algorithm == 'Mean-Shift':
-                print("TEST!!!!! Mean-Shift 3D Graph is not available yet.")
                 children = [
                     html.Br(),
-                    html.H5("A 3D Graph will be made. (1).")
+                    html.H5("A " + str(algorithm) + " graph is not available yet. Coming soon.")
                 ]
             # NO 3D Options Available:
             elif algorithm == 'DBSCAN':
-                print("TEST!!!!! DBSCAN 3D Graph is not available.")
                 children = [
                     html.Br(),
-                    html.H5("A DBSCAN 3D Graph is not available. Please make another selection (1).")
+                    html.H5("A " + str(algorithm) + " graph is not available yet. Coming soon.")
                 ]
 
         return children
@@ -328,13 +304,6 @@ def main():
                   Input('clusters_selector2', 'value'))
     def update_output_graph2(algorithm, choice2d3d, x, y, z, clusters):
 
-        print("Algorithm right is: " + str(algorithm))
-        print("Choice of 2D or 3D right is: " + str(choice2d3d))
-        print("x right is: " + str(x))
-        print("y right is: " + str(y))
-        print("z right is: " + str(z))
-        print("Number of clusters right: " + str(clusters))
-
         alg_bool = algorithm is not None
         x_bool = x is not None
         y_bool = y is not None
@@ -344,86 +313,69 @@ def main():
         if alg_bool and (choice2d3d == '2D') and x_bool and y_bool:
 
             if algorithm == 'K-Means':
-                print("TEST!!!!! A K-Means 2D Graph will be made.")
                 fig = make_k_means_2d_graph(data[0], x, y, clusters)
                 children = [
                     html.Br(),
-                    html.H5("A " + str(algorithm) + " graph will be made (2)."),
                     dcc.Graph(
                         id='graph2',
                         figure=fig
                     ),
                 ]
             elif algorithm == 'GMM':
-                print("TEST!!!!! A GMM 2D Graph will be made.")
                 fig = make_gmm_2d_graph(data[0], x, y, clusters)
                 children = [
                     html.Br(),
-                    html.H5("A " + str(algorithm) + " graph will be made (2)."),
                     dcc.Graph(
                         id='graph2',
                         figure=fig
                     )
                 ]
             elif algorithm == 'DBSCAN':
-                print("TEST!!!!! DBSCAN 2D Graph not available yet.")
                 children = [
                     html.Br(),
-                    html.H5("A " + str(algorithm) + " graph will be made (2).")
+                    html.H5("A " + str(algorithm) + " graph is not available yet. Coming soon.")
                 ]
-
             elif algorithm == 'Mean-Shift':
-                print("TEST!!!!! Mean-Shift 2D Graph not available yet.")
                 children = [
                     html.Br(),
-                    html.H5("A " + str(algorithm) + " graph will be made (2).")
+                    html.H5("A " + str(algorithm) + " graph is not available yet. Coming soon.")
                 ]
 
         # Make a 3D graph
         elif alg_bool and (choice2d3d == '3D') and x_bool and y_bool and z_bool:
 
-            print("A Graph for " + str(algorithm) + " will be made:")
-
             if algorithm == 'K-Means':
-                print("A K-Means 3D Graph will be made.")
                 fig = make_k_means_3d_graph(data[0], x, y, z, clusters)
-
                 children = [
                     html.Br(),
-                    html.H5("A K-Means 3D Graph will be made (2)."),
                     dcc.Graph(
                         id='graph2',
                         figure=fig
                     ),
                 ]
             elif algorithm == 'GMM':
-                print("TEST!!!!! GMM 3D Graph is not available yet.")
                 fig = make_gmm_3d_graph(data[0], x, y, z, clusters)
                 children = [
                     html.Br(),
-                    html.H5("A GMM 3D Graph will be made (2)."),
                     dcc.Graph(
                         id='graph2',
                         figure=fig
                     )
                 ]
             elif algorithm == 'Mean-Shift':
-                print("TEST!!!!! Mean-Shift 3D Graph is not available yet.")
                 children = [
                     html.Br(),
-                    html.H5("A 3D Graph will be made. (2).")
+                    html.H5("A " + str(algorithm) + " graph is not available yet. Coming soon.")
                 ]
-            # NO 3D Options Available:
             elif algorithm == 'DBSCAN':
-                print("TEST!!!!! DBSCAN 3D Graph is not available.")
                 children = [
                     html.Br(),
-                    html.H5("A DBSCAN 3D Graph is not available. Please make another selection (2).")
+                    html.H5("A " + str(algorithm) + " graph is not available yet. Coming soon.")
                 ]
 
         return children
 
-    # **************************************** Run the app ****************************************
+    # *********** Run the app ***********
     app.run_server(debug=True, dev_tools_ui=False)
 
 
@@ -475,18 +427,14 @@ def make_k_means_3d_graph(df, x_axis, y_axis, z_axis, clusters):
     model = KMeans(n_clusters=clusters, init="k-means++", max_iter=300, n_init=10, random_state=0)
     y_clusters = model.fit_predict(x)
 
-    # 3D scatter plot using Plotly
     scene = dict(xaxis=dict(title=x_axis + ' <---'), yaxis=dict(title=y_axis + ' --->'),
                  zaxis=dict(title=z_axis + ' <---'))
     labels = model.labels_
+
     trace = go.Scatter3d(x=x[:, 0], y=x[:, 1], z=x[:, 2],
                          mode='markers',
                          marker=dict(color=labels, size=10, line=dict(color='black', width=10)))
-    layout = go.Layout(title="K-Means",
-                       margin=dict(l=0, r=0),
-                       scene=scene,
-                       height=800,
-                       width=800)
+    layout = go.Layout(title="K-Means", margin=dict(l=0, r=0), scene=scene, height=800, width=800)
     graph_data = [trace]
     fig_k_means = go.Figure(data=graph_data, layout=layout)
 
@@ -496,34 +444,23 @@ def make_k_means_3d_graph(df, x_axis, y_axis, z_axis, clusters):
 # Return a figure for the 2D version of K-Means
 def make_k_means_2d_graph(df, x_axis, y_axis, clusters):
 
-    # make a data frame from the csv data
     x = df[[x_axis, y_axis]].values
-
-    # 3D scatter plot using Plotly
     model = KMeans(n_clusters=clusters, init="k-means++", max_iter=300, n_init=10, random_state=0)
     y_clusters = model.fit_predict(x)
     labels = model.labels_
 
-    layout = go.Layout(title="K-Means",
-                       margin=dict(l=0, r=0),
-                       xaxis=dict(title=x_axis),
-                       yaxis=dict(title=y_axis),
-                       height=600,
-                       width=600)
+    layout = go.Layout(title="K-Means", margin=dict(l=0, r=0),
+                       xaxis=dict(title=x_axis), yaxis=dict(title=y_axis), height=600, width=600)
     fig_k_means = go.Figure(layout=layout)
-
-    fig_k_means.add_trace(go.Scatter(
-        x=x[:, 0], y=x[:, 1],
-        hovertext=[x_axis, y_axis],  # no attribute names displayed :(
-        mode='markers',
-        marker=dict(color=labels, size=10)))
-
+    fig_k_means.add_trace(go.Scatter(x=x[:, 0], y=x[:, 1],
+                                     hovertext=[x_axis, y_axis],  # no attribute names displayed :(
+                                     mode='markers',
+                                     marker=dict(color=labels, size=10)))
     fig_k_means.update_layout(
         hoverlabel=dict(
             font_size=16,
             font_family="Rockwell",
         ))
-
     return fig_k_means
 
 
@@ -566,8 +503,6 @@ def make_gmm_3d_graph(df, x_axis, y_axis, z_axis, clusters):
                  zaxis=dict(title=z_axis + ' <---'))
 
     # Fit a Gaussian mixture with EM
-    # n_components is the number of mixture components
-    # covariance_type = FULL: each component has its own general covariance matrix
     gmm = mixture.GaussianMixture(n_components=clusters, covariance_type='full').fit(X)
     Y_ = gmm.predict(X)
     means = gmm.means_
@@ -628,7 +563,6 @@ def num_clusters_selection1():
                 {'label': '6', 'value': 6},
                 {'label': '7', 'value': 7},
                 {'label': '8', 'value': 8}
-
             ],
             value=2,
             labelStyle={'display': 'inline-block'}
@@ -735,7 +669,6 @@ def num_clusters_selection2():
                 {'label': '6', 'value': 6},
                 {'label': '7', 'value': 7},
                 {'label': '8', 'value': 8}
-
             ],
             value=2,
             labelStyle={'display': 'inline-block'}
