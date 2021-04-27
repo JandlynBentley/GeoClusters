@@ -74,49 +74,41 @@ def main():
         # Div 2: Holds The comparative tool
         html.Div([
 
-            # Div 2.5: Holds all the interactive components and graph (left and right side)
+            # container for the interactive elements
             html.Div([
 
                 # LEFT SIDE
                 html.Div([
-                    # container for the left interactive elements
                     html.Div(
                         id='output-dropdown-area1',
                         style={'width': '50%'}
                     )
                 ]),
-                html.Br(),
+            ],
+                # Set all of the interactive components and graphs into two columns
+                style={
+                    'columnCount': 2,
+                    'columnGap': '100px'
+                }
+            ),
 
-                # Container for the left graph
-                html.Div([
-                    html.Div(
-                        id='output-graph-area1',
-                        style={'width': '50%',
-                               'display': 'inline-block'},
-                    )
-                ]),
-                html.Br(),
+            # Container for the graphs
+            html.Div([
 
-                # RIGHT SIDE
                 html.Div([
-                    # container for the right interactive elements
-                    html.Div(
-                        id='output-dropdown-area2',
-                        style={'width': '50%'}
-                    )
-                ]),
-                html.Br(),
-
-                # Container for the right graph
-                html.Div([
+                    html.Div([
+                        html.Div(
+                            id='output-graph-area1',
+                            style={'width': '50%',
+                                   'display': 'inline-block'},
+                        )
+                    ]),
                     html.Div(
                         id='output-graph-area2',
                         style={'width': '50%',
                                'display': 'inline-block'},
                     )
                 ]),
-                html.Br(),
-
             ],
                 # Set all of the interactive components and graphs into two columns
                 style={
@@ -125,7 +117,7 @@ def main():
                 }
             )
 
-        ]),
+        ]), # Div 2 ends
         # ************************************************************************************************
 
         # Div 3: Holds the upload tool
@@ -155,12 +147,11 @@ def main():
                 multiple=True
             ),
             html.Br()
-        ])
+        ])  # Div 3 ends
 
     ])  # end of app layout
 
     # Given the data set from Upload, parse the data into a data frame and collect axis options
-    # Also return axis dropdowns for x, y, and z
     @app.callback(Output('output-dropdown-area1', 'children'),
                   Input('upload-data', 'contents'),
                   State('upload-data', 'filename'),
@@ -188,39 +179,28 @@ def main():
             axes2 = html.Div(axes_selection_xyz_2())
 
             children = [
+
                 # LEFT SIDE -------
                 html.H5(
-                    children='--- First Algorithm ---',
+                    children='-------- First Algorithm --------',
                     style={
+                        'color': 'blue',
                         'textAlign': 'center'
                     }
                 ),
-
                 alg1,
                 graph2d3d_1,
                 clusters1,
                 axes1,
 
-                html.Br(),
-                html.Br(),
-
-                html.H5(
-                    children='---------------------------------------------------------------------------------------',
-                    style={
-                        'textAlign': 'left'
-                    }
-                ),
-
-                html.Br(),
-
                 # RIGHT SIDE -------
                 html.H5(
-                    children='--- Second Algorithm ---',
+                    children='-------- Second Algorithm --------',
                     style={
+                        'color': 'blue',
                         'textAlign': 'center'
                     }
                 ),
-
                 alg2,
                 graph2d3d_2,
                 clusters2,
@@ -338,7 +318,7 @@ def main():
 
     # RIGHT GRAPH -----------------------------------------------------------------------------------------------
 
-    # Once x, y, z axes have been chosen, output a scatter plot to graph 1
+    # Once x, y, z axes have been chosen, output a scatter plot to graph 2
     @app.callback(Output('output-graph-area2', 'children'),
                   Input("dropdown_algorithm2", "value"),
                   Input("2d3d_graph2", "value"),
@@ -449,7 +429,7 @@ def main():
 
 # FUNCTIONS ---------------------------------------------------------------------------------------------------
 
-# Given a file, parse the contents into a scatter plot
+# Given a file, parse the contents
 def parse_contents(contents, filename, date):
     columns = []
     data_types = []
@@ -478,7 +458,7 @@ def parse_contents(contents, filename, date):
             'There was an error processing this file.'
         ])
 
-    # parse the numerical-based attributes from the first row
+    # Parse the numerical-based attributes from the first row
     if columns is not None:
         for i in range(len(columns)):
             if data_types[i] == 'int64' or data_types[i] == 'float64':
@@ -520,7 +500,6 @@ def make_k_means_2d_graph(df, x_axis, y_axis, clusters):
     x = df[[x_axis, y_axis]].values
 
     # 3D scatter plot using Plotly
-    # model = KMeans(n_clusters=4, init="k-means++", max_iter=300, n_init=10, random_state=0)
     model = KMeans(n_clusters=clusters, init="k-means++", max_iter=300, n_init=10, random_state=0)
     y_clusters = model.fit_predict(x)
     labels = model.labels_
@@ -558,7 +537,7 @@ def make_gmm_2d_graph(df, x_axis, y_axis, clusters):
     gmm = mixture.GaussianMixture(n_components=clusters, covariance_type='full').fit(X)
     cluster_labels = gmm.predict(X)
 
-    layout = go.Layout(title="GMM",
+    layout = go.Layout(title="Gaussian Mixture Model with EM",
                        margin=dict(l=0, r=0),
                        xaxis=dict(title=x_axis),
                        yaxis=dict(title=y_axis),
@@ -566,14 +545,14 @@ def make_gmm_2d_graph(df, x_axis, y_axis, clusters):
                        width=600)
     fig_gmm = go.Figure(layout=layout)
 
-    def plot_gmm_results(X, Y_, means, covariances, title):
+    def plot_gmm_results(X, Y_, means, covariances):
         for i, (mean, covar, color) in enumerate(zip(means, covariances, color_iter)):
             fig_gmm.add_trace(go.Scatter(
                 x=X[Y_ == i, 0], y=X[Y_ == i, 1],
                 mode='markers',
                 marker=dict(color=color, size=10)))
 
-    plot_gmm_results(X, cluster_labels, gmm.means_, gmm.covariances_, 'Gaussian Mixture Model with EM')
+    plot_gmm_results(X, cluster_labels, gmm.means_, gmm.covariances_)
     return fig_gmm
 
 
@@ -635,6 +614,7 @@ def alg_selection1():
     ]),
 
 
+# Return a Div container that contains number of clusters selection dropdown
 def num_clusters_selection1():
     return html.Div([
         html.H5("Select the number of predicted clusters (will be applied to K-Means and GMM only)"),
@@ -673,7 +653,7 @@ def graph_2d3d_selection1():
     ])
 
 
-# Return a Div container that contains axis selection dropdowns for x, y, and z (3D)
+# Return a Div container that contains axis selection dropdowns for x, y, and z
 def axes_selection_xyz_1():
     return html.Div([
         html.H5("X-Axis"),
@@ -741,6 +721,7 @@ def alg_selection2():
     ]),
 
 
+# Return a Div container that contains number of clusters selection dropdown
 def num_clusters_selection2():
     return html.Div([
         html.H5("Select the number of predicted clusters (will be applied to K-Means and GMM only)"),
@@ -779,7 +760,7 @@ def graph_2d3d_selection2():
     ])
 
 
-# Return a Div container that contains axis selection dropdowns for x, y, and z (3D)
+# Return a Div container that contains axis selection dropdowns for x, y, and z
 def axes_selection_xyz_2():
     return html.Div([
         html.H5("X-Axis"),
