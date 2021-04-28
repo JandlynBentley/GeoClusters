@@ -1,9 +1,11 @@
 # GeoClusters
 
 **Overview**
+
 GeoClusters is a prototype open-source data analysis web application intended for a quick, visual comparison of clustering algorithms run on a user-provided data set in real time. This project was originally intended to help introduce geoscientists/geoscience students with no prior programming background to a common data mining tool.  However, any numerically-based data set will work with this comparative tool. 
 
 **Running GeoClusters**
+
 This Dash web app runs on localhost.  This means the web app can only be accessed on your own machine, as opposed to visiting a specific URL.  To run GeoClusters, clone the project from this repository and run the main.py program in a Python-friendly IDE or Command Prompt / Terminal.  Click the blue localhost (http://127.0.0.1:8050/) hyperlink when it appears in the **Run** tool window.  This may take a few seconds.  This action should bring you to a new tab in your web browser that launches the web app.  **Note:** the program must be running for the link to be live.  
 
 Once in the web app, you can upload a data set in csv or xls format in the designated upload area.  A pre-processed data set that contains only the column titles and column data will be able to be processed.  If your data set contains columns with non-numerical information, this is fine, but will be excluded from the comparative tool.  This program will account for missing data points by removing rows that contain missing data from selected axes (and only these axes). Several sample (real) datasets have been provided under the Datasets folder in this repository for convenience. Credit for these datasets can be found at the bottom of this ReadMe.
@@ -15,6 +17,7 @@ With a data set uploaded, two sets of interactive parameter choices will appear 
 * x, y, and z axes
 
 **Getting the most out of cluster analysis comparison**
+
 The selections from each set of columns will affect the output in a scatter plot on the same side. This allows you to compare different clustering algorithms run over the same data set. 
 
 A few comparative examples include:
