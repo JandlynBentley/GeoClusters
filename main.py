@@ -13,12 +13,14 @@ import dash
 from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
+import xlrd
 
 import pandas as pd
 from sklearn.cluster import KMeans
 import plotly.graph_objs as go
 import itertools
 from sklearn import mixture
+
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 markdown_text1 = '''
@@ -156,55 +158,66 @@ def main():
                   Input('upload-data', 'contents'),
                   State('upload-data', 'filename'),
                   State('upload-data', 'last_modified'))
-    def update_input_dropdown(list_of_contents, list_of_names, list_of_dates):
+    def update_input_dropdowns(list_of_contents, list_of_names, list_of_dates):
 
         if list_of_contents is not None:
             '''
             The parsing function takes in a data set, collects and stores the attributes in a global variable
             to be used for the axes' dropdown options, as well as a storing the data frame in another global variable.
             '''
-            data_frame = [parse_contents(c, n, d) for c, n, d in zip(list_of_contents, list_of_names, list_of_dates)]
+            # THIS NOW HOLDS AN INT THAT WILL BE USED TO CHECK IF ENOUGH DATA IS AVAILABLE TO MAKE A 2D GRAPH
+            enough_data = [parse_contents(c, n, d) for c, n, d in zip(list_of_contents, list_of_names, list_of_dates)]
 
             # Left side
             alg1 = html.Div(alg_selection1())  # Algorithm selection dropdown
             graph2d3d_1 = html.Div(graph_2d3d_selection1())  # 2D or 3D graph selection radio buttons
             clusters1 = num_clusters_selection1()  # Number of predicted clusters via radio buttons
-            axes1 = html.Div(axes_selection_xyz_1())
+            axes1 = html.Div(axes_selection_xyz_1())  # x, y, z axes' dropdowns
 
             # Right side
             alg2 = html.Div(alg_selection2())  # Algorithm selection dropdown
             graph2d3d_2 = html.Div(graph_2d3d_selection2())  # 2D or 3D graph selection radio buttons
             clusters2 = num_clusters_selection2()  # Number of predicted clusters via radio buttons
-            axes2 = html.Div(axes_selection_xyz_2())
+            axes2 = html.Div(axes_selection_xyz_2())  # x, y, z axes' dropdowns
 
-            children = [
+            if enough_data[0] == 0:
+                children = [
+                    html.H5(
+                        children='The file uploaded did not have enough data to make a 2D graph.',
+                        style={
+                            'textAlign': 'center'
+                        }
+                    ),
+                ]
+            if enough_data[0] == 1:
+                children = [
 
-                # LEFT SIDE -------
-                html.H5(
-                    children='-------- First Algorithm --------',
-                    style={
-                        'color': 'green',
-                        'textAlign': 'center'
-                    }
-                ),
-                alg1,
-                graph2d3d_1,
-                clusters1,
-                axes1,
+                    # LEFT SIDE -------
+                    html.H5(
+                        children='-------- First Algorithm --------',
+                        style={
+                            'color': 'green',
+                            'textAlign': 'center'
+                        }
+                    ),
+                    alg1,
+                    graph2d3d_1,
+                    clusters1,
+                    axes1,
 
-                # RIGHT SIDE -------
-                html.H5(
-                    children='-------- Second Algorithm --------',
-                    style={
-                        'color': 'green',
-                        'textAlign': 'center'
-                    }
-                ),
-                alg2,
-                graph2d3d_2,
-                clusters2,
-                axes2,
-            ]
+                    # RIGHT SIDE -------
+                    html.H5(
+                        children='-------- Second Algorithm --------',
+                        style={
+                            'color': 'green',
+                            'textAlign': 'center'
+                        }
+                    ),
+                    alg2,
+                    graph2d3d_2,
+                    clusters2,
+                    axes2,
+                ]
 
             return children
 
@@ -383,8 +396,6 @@ def main():
 
 # Given a file, parse the contents
 def parse_contents(contents, filename, date):
-    columns = []
-    data_types = []
 
     # Data is separated by a comma
     content_type, content_string = contents.split(',')
@@ -395,20 +406,20 @@ def parse_contents(contents, filename, date):
         if 'csv' in filename:
             # Assume that the user uploaded a CSV file
             df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
-            columns = df.columns
-            data_types = df.dtypes
 
         elif 'xls' in filename:
+
             # Assume that the user uploaded an excel file
             df = pd.read_excel(io.BytesIO(decoded))
-            columns = df.columns
-            data_types = df.dtypes
 
     except Exception as e:
         print(e)
         return html.Div([
             'There was an error processing this file.'
         ])
+
+    columns = df.columns
+    data_types = df.dtypes
 
     # Parse the numerical-based attributes from the first row
     if columns is not None:
@@ -417,7 +428,13 @@ def parse_contents(contents, filename, date):
                 axes_options.append(columns[i])
 
     data.append(df)
-    return df
+
+    enough_data = 0
+    if len(axes_options) >= 2:
+        enough_data = 1
+    # 0 = there is not enough data to make a 2D graph
+    # 1 = there is enough data to make a 2D graph
+    return enough_data
 
 
 # Return a figure for the 3D version of K-Means
