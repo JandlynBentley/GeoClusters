@@ -233,6 +233,7 @@ def main():
                   Input('clusters_selector1', 'value'))
     def update_output_graph1(algorithm, choice2d3d, x, y, z, clusters):
 
+        df = data[0]  # get the data frame from storage in the global list variable
         alg_bool = algorithm is not None
         x_bool = x is not None
         y_bool = y is not None
@@ -241,8 +242,13 @@ def main():
         # Make a 2D graph
         if alg_bool and (choice2d3d == '2D') and x_bool and y_bool:
 
+            # Make a copy of the original data frame
+            new_df = df.copy(deep=True)
+            # Remove the rows with missing data
+            new_df.dropna(subset=[x, y], inplace=True)
+
             if algorithm == 'K-Means':
-                fig = make_k_means_2d_graph(data[0], x, y, clusters)
+                fig = make_k_means_2d_graph(new_df, x, y, clusters)
                 children = [
                     html.Br(),
                     dcc.Graph(
@@ -251,7 +257,7 @@ def main():
                     ),
                 ]
             elif algorithm == 'GMM':
-                fig = make_gmm_2d_graph(data[0], x, y, clusters)
+                fig = make_gmm_2d_graph(new_df, x, y, clusters)
                 children = [
                     html.Br(),
                     dcc.Graph(
@@ -273,8 +279,13 @@ def main():
         # Make a 3D graph
         elif alg_bool and (choice2d3d == '3D') and x_bool and y_bool and z_bool:
 
+            # Make a copy of the original data frame
+            new_df = df.copy(deep=True)
+            # Remove the rows with missing data
+            new_df.dropna(subset=[x, y, z], inplace=True)
+
             if algorithm == 'K-Means':
-                fig = make_k_means_3d_graph(data[0], x, y, z, clusters)
+                fig = make_k_means_3d_graph(new_df, x, y, z, clusters)
                 children = [
                     html.Br(),
                     dcc.Graph(
@@ -283,7 +294,7 @@ def main():
                     ),
                 ]
             elif algorithm == 'GMM':
-                fig = make_gmm_3d_graph(data[0], x, y, z, clusters)
+                fig = make_gmm_3d_graph(new_df, x, y, z, clusters)
                 children = [
                     html.Br(),
                     dcc.Graph(
@@ -296,7 +307,6 @@ def main():
                     html.Br(),
                     html.H5("A " + str(algorithm) + " graph is not available yet. Coming soon.")
                 ]
-            # NO 3D Options Available:
             elif algorithm == 'DBSCAN':
                 children = [
                     html.Br(),
@@ -317,6 +327,7 @@ def main():
                   Input('clusters_selector2', 'value'))
     def update_output_graph2(algorithm, choice2d3d, x, y, z, clusters):
 
+        df = data[0]  # get the data frame from storage in the global list variable
         alg_bool = algorithm is not None
         x_bool = x is not None
         y_bool = y is not None
@@ -325,8 +336,13 @@ def main():
         # Make a 2D graph
         if alg_bool and (choice2d3d == '2D') and x_bool and y_bool:
 
+            # Make a copy of the original data frame
+            new_df = df.copy(deep=True)
+            # Remove the rows with missing data
+            new_df.dropna(subset=[x, y], inplace=True)
+
             if algorithm == 'K-Means':
-                fig = make_k_means_2d_graph(data[0], x, y, clusters)
+                fig = make_k_means_2d_graph(new_df, x, y, clusters)
                 children = [
                     html.Br(),
                     dcc.Graph(
@@ -335,7 +351,7 @@ def main():
                     ),
                 ]
             elif algorithm == 'GMM':
-                fig = make_gmm_2d_graph(data[0], x, y, clusters)
+                fig = make_gmm_2d_graph(new_df, x, y, clusters)
                 children = [
                     html.Br(),
                     dcc.Graph(
@@ -357,8 +373,13 @@ def main():
         # Make a 3D graph
         elif alg_bool and (choice2d3d == '3D') and x_bool and y_bool and z_bool:
 
+            # Make a copy of the original data frame
+            new_df = df.copy(deep=True)
+            # Remove the rows with missing data
+            new_df.dropna(subset=[x, y, z], inplace=True)
+
             if algorithm == 'K-Means':
-                fig = make_k_means_3d_graph(data[0], x, y, z, clusters)
+                fig = make_k_means_3d_graph(new_df, x, y, z, clusters)
                 children = [
                     html.Br(),
                     dcc.Graph(
@@ -367,7 +388,7 @@ def main():
                     ),
                 ]
             elif algorithm == 'GMM':
-                fig = make_gmm_3d_graph(data[0], x, y, z, clusters)
+                fig = make_gmm_3d_graph(new_df, x, y, z, clusters)
                 children = [
                     html.Br(),
                     dcc.Graph(
@@ -406,12 +427,9 @@ def parse_contents(contents, filename, date):
         if 'csv' in filename:
             # Assume that the user uploaded a CSV file
             df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
-
         elif 'xls' in filename:
-
             # Assume that the user uploaded an excel file
             df = pd.read_excel(io.BytesIO(decoded))
-
     except Exception as e:
         print(e)
         return html.Div([
