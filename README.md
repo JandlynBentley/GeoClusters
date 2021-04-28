@@ -4,6 +4,7 @@
 
 GeoClusters is a prototype open-source data analysis web application intended for a quick, visual comparison of clustering algorithms run on a user-provided data set in real time. This project was originally intended to help introduce geoscientists/geoscience students with no prior programming background to a common data mining tool.  However, any numerically-based data set will work with this comparative tool. 
 
+
 **Running GeoClusters**
 
 This Dash web app runs on localhost.  This means the web app can only be accessed on your own machine, as opposed to visiting a specific URL.  To run GeoClusters, clone the project from this repository and run the main.py program in a Python-friendly IDE or Command Prompt / Terminal.  Click the blue localhost (http://127.0.0.1:8050/) hyperlink when it appears in the **Run** tool window.  This may take a few seconds.  This action should bring you to a new tab in your web browser that launches the web app.  **Note:** the program must be running for the link to be live.  
@@ -15,6 +16,7 @@ With a data set uploaded, two sets of interactive parameter choices will appear 
 * 2D vs 3D graph type
 * number of clusters (used for K-Means and GMM only)
 * x, y, and z axes
+
 
 **Getting the most out of cluster analysis comparison**
 
