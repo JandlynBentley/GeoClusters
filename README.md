@@ -1,6 +1,6 @@
 # GeoClusters
 
-####**Overview**
+####Overview
 GeoClusters is a prototype open-source data analysis web application intended for a quick, visual comparison of clustering algorithms run on a user-provided data set in real time. This project was originally intended to help introduce geoscientists/geoscience students with no prior programming background to a common data mining tool.  However, any numerically-based data set will work with this comparative tool. 
 
 ####**Running GeoClusters**
@@ -14,7 +14,7 @@ With a data set uploaded, two sets of interactive parameter choices will appear 
 * number of clusters (used for K-Means and GMM only)
 * x, y, and z axes
 
-####**Getting the most out of cluster analysis comparison**
+**Getting the most out of cluster analysis comparison**
 The selections from each set of columns will affect the output in a scatter plot on the same side. This allows you to compare different clustering algorithms run over the same data set. 
 
 A few comparative examples include:
@@ -29,18 +29,22 @@ To submit a bug report, please email a detailed description of the bug to this [
 Sample data sets were obtained from:
 
 *United States Groundwater Chemistry - Dissolved Organic Carbon Model*
+
 McDonough, Liza K; Santos, Isaac R; Andersen, Martin; O'Carroll, Denis; Rutlidge, Helen; Meredith, Karina; Oudone, Phetdala; Bridgeman, John; Gooddy, Daren C; Sorensen, James P R; Lapworth, Dan J; MacDonald, Alan M; Ward, Jade; Baker, Andy (2019): United States Groundwater Chemistry - Dissolved Organic Carbon Model. PANGAEA, https://doi.org/10.1594/PANGAEA.896953
 https://doi.pangaea.de/10.1594/PANGAEA.896953 
 
 *Chemical Composition of Ceramic Samples Data Set*
+
 He, Z., Zhang, M., & Zhang, H. (2016). Data-driven research on chemical features of Jingdezhen and Longquan celadon by energy dispersive X-ray fluorescence. Ceramics International, 42(4), 5123-5129.
 https://archive.ics.uci.edu/ml/datasets/Chemical+Composition+of+Ceramic+Samples 
 
 *Forest Fires Data Set*
+
 [Cortez and Morais, 2007] P. Cortez and A. Morais. A Data Mining Approach to Predict Forest Fires using Meteorological Data. In J. Neves, M. F. Santos and J. Machado Eds., New Trends in Artificial Intelligence, Proceedings of the 13th EPIA 2007 - Portuguese Conference on Artificial Intelligence, December, Guimarães, Portugal, pp. 512-523, 2007. APPIA, ISBN-13 978-989-95618-0-9. Available at: [Web Link]
 http://archive.ics.uci.edu/ml/datasets/Forest+Fires
 
 *Foram Abundance*
+
 Shaw, Jack O; D'haenens, Simon; Thomas, Ellen; Norris, Richard D; Lyman, Johnnie A; Bornemann, André; Hull, Pincelli M (2020): Photosymbiosis in planktonic foraminifera across the Palaeocene-Eocene Thermal Maximum. PANGAEA, https://doi.org/10.1594/PANGAEA.918702  
 https://doi.pangaea.de/10.1594/PANGAEA.918702
 
