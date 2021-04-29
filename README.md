@@ -35,19 +35,19 @@ To submit a bug report, please email a detailed description of the bug to this [
 
 **Sample data sets were obtained from:**
 
-*United States Groundwater Chemistry - Dissolved Organic Carbon Model*: https://doi.pangaea.de/10.1594/PANGAEA.896953 
+*United States Groundwater Chemistry - Dissolved Organic Carbon Model*: [Source](https://doi.pangaea.de/10.1594/PANGAEA.896953)
 
 McDonough, Liza K; Santos, Isaac R; Andersen, Martin; O'Carroll, Denis; Rutlidge, Helen; Meredith, Karina; Oudone, Phetdala; Bridgeman, John; Gooddy, Daren C; Sorensen, James P R; Lapworth, Dan J; MacDonald, Alan M; Ward, Jade; Baker, Andy (2019): United States Groundwater Chemistry - Dissolved Organic Carbon Model. PANGAEA, https://doi.org/10.1594/PANGAEA.896953
 
-*Chemical Composition of Ceramic Samples Data Set*: https://archive.ics.uci.edu/ml/datasets/Chemical+Composition+of+Ceramic+Samples 
+*Chemical Composition of Ceramic Samples Data Set*: [Source](https://archive.ics.uci.edu/ml/datasets/Chemical+Composition+of+Ceramic+Samples)
 
 He, Z., Zhang, M., & Zhang, H. (2016). Data-driven research on chemical features of Jingdezhen and Longquan celadon by energy dispersive X-ray fluorescence. Ceramics International, 42(4), 5123-5129.
 
-*Forest Fires Data Set*: http://archive.ics.uci.edu/ml/datasets/Forest+Fires
+*Forest Fires Data Set*: [Source](http://archive.ics.uci.edu/ml/datasets/Forest+Fires)
 
 [Cortez and Morais, 2007] P. Cortez and A. Morais. A Data Mining Approach to Predict Forest Fires using Meteorological Data. In J. Neves, M. F. Santos and J. Machado Eds., New Trends in Artificial Intelligence, Proceedings of the 13th EPIA 2007 - Portuguese Conference on Artificial Intelligence, December, Guimarães, Portugal, pp. 512-523, 2007. APPIA, ISBN-13 978-989-95618-0-9. Available at: [Web Link]
 
-*Foram Abundance*: https://doi.pangaea.de/10.1594/PANGAEA.918702
+*Foram Abundance*: [Source](https://doi.pangaea.de/10.1594/PANGAEA.918702)
 
 Shaw, Jack O; D'haenens, Simon; Thomas, Ellen; Norris, Richard D; Lyman, Johnnie A; Bornemann, André; Hull, Pincelli M (2020): Photosymbiosis in planktonic foraminifera across the Palaeocene-Eocene Thermal Maximum. PANGAEA, https://doi.org/10.1594/PANGAEA.918702  
 
