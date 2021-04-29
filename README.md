@@ -6,7 +6,7 @@ GeoClusters is a prototype open-source data analysis web application intended fo
 
 **Running GeoClusters**
 
-This project runs on Python 3.8
+This project runs on Python 3.8.  
 You may need to install several packages to run this program including dash, plotly, pandas, scikit-learn, numpy, xlrd, and pytest.  The full list of dependencies are listed in [requirements.txt](https://github.com/JandlynBentley/GeoClusters/blob/master/requirements.txt).
 
 This Dash web app runs on localhost.  This means the web app can only be accessed on your own machine, as opposed to visiting a specific URL.  To run GeoClusters, clone the project from this repository and run the main.py program in a Python-friendly IDE or Command Prompt / Terminal.  Click the blue localhost (http://127.0.0.1:8050/) hyperlink when it appears in the Run tool window.  This may take a few seconds.  This action should bring you to a new tab in your web browser that launches the web app.  **Note:** the program must be running for the link to be live.  
