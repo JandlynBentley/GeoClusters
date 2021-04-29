@@ -26,13 +26,22 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 markdown_text1 = '''
 GeoClusters is a visual tool for geoscientists to view their data under various clustering algorithms in real time.
 
-To use the clustering comparative tool:
+&nbsp;
+
+**To use the clustering comparative tool:**
 &nbsp;
 
     * Drag and drop or select a preprocessed CSV or Excel file in the blue upload area. 
-    * This file should have all preceding and trailing comments removed so only the column names and column data remain.
-    * Choose from the drop down menus to compare clustering algorithms on your data. 
-    * Note: Algorithm, 2D / 3D, and required number of axes choices must all the selected for a graph to update.
+        + This file should have all preceding and trailing comments removed.
+        + Only the column names and column data should remain.
+        
+    * If the file meets these conditions, interactive selectors will appear.
+        + To compare clustering algorithms on your data, select parameters from these options.
+        + The selections have a cascading effect. 
+            - If no algorithm is selected, a new graph will not appear.
+            - Appropriate number of axes must be chosen to produce a 2D or 3D graph.   
+            - The "number of predicted clusters" option will only be applied to K-Means and GMM algorithms.    
+&nbsp;
 
 The code for this open-source tool can be found on [Github](https://github.com/JandlynBentley/GeoClusters).
 '''
@@ -68,6 +77,7 @@ def main():
                 children=markdown_text1,
                 style={
                     'textAlign': 'left',
+                    'font-size': '18px',
                     'width': '50%'
                 }
             ),
@@ -140,6 +150,7 @@ def main():
                     'borderStyle': 'dashed',
                     'borderRadius': '100px',
                     'textAlign': 'center',
+                    'font-size': '20px',
                     'margin-top': '10px',
                     'margin-left': '25%',
                     'margin-bottom': '10px',
@@ -256,7 +267,7 @@ def main():
                         figure=fig
                     ),
                 ]
-            elif algorithm == 'GMM':
+            elif algorithm == 'Gaussian Mixture Model with EM':
                 fig = make_gmm_2d_graph(new_df, x, y, clusters)
                 children = [
                     html.Br(),
@@ -293,7 +304,7 @@ def main():
                         figure=fig
                     ),
                 ]
-            elif algorithm == 'GMM':
+            elif algorithm == 'Gaussian Mixture Model with EM':
                 fig = make_gmm_3d_graph(new_df, x, y, z, clusters)
                 children = [
                     html.Br(),
@@ -350,7 +361,7 @@ def main():
                         figure=fig
                     ),
                 ]
-            elif algorithm == 'GMM':
+            elif algorithm == 'Gaussian Mixture Model with EM':
                 fig = make_gmm_2d_graph(new_df, x, y, clusters)
                 children = [
                     html.Br(),
@@ -387,7 +398,7 @@ def main():
                         figure=fig
                     ),
                 ]
-            elif algorithm == 'GMM':
+            elif algorithm == 'Gaussian Mixture Model with EM':
                 fig = make_gmm_3d_graph(new_df, x, y, z, clusters)
                 children = [
                     html.Br(),
@@ -502,7 +513,7 @@ def make_k_means_2d_graph(df, x_axis, y_axis, clusters):
 # Return a figure for the 2D version of GMM
 def make_gmm_2d_graph(df, x_axis, y_axis, clusters):
 
-    color_iter = itertools.cycle(['cornflowerblue', 'darkorange', 'red', 'teal', 'gold', 'violet'])
+    color_iter = itertools.cycle(['cornflowerblue', 'darkorange', 'red', 'teal', 'gold', 'violet', 'black', 'green'])
     X = df[[x_axis, y_axis]].values
 
     # Fit a Gaussian mixture with EM
@@ -531,7 +542,7 @@ def make_gmm_2d_graph(df, x_axis, y_axis, clusters):
 # Return a figure for the 3D version of GMM
 def make_gmm_3d_graph(df, x_axis, y_axis, z_axis, clusters):
 
-    color_iter = itertools.cycle(['cornflowerblue', 'darkorange', 'red', 'teal', 'gold', 'violet'])
+    color_iter = itertools.cycle(['cornflowerblue', 'darkorange', 'red', 'teal', 'gold', 'violet', 'black', 'green'])
     X = df[[x_axis, y_axis, z_axis]].values
 
     scene = dict(xaxis=dict(title=x_axis + ' <---'), yaxis=dict(title=y_axis + ' --->'),
@@ -568,7 +579,7 @@ def alg_selection1():
         dcc.Dropdown(
             id="dropdown_algorithm1",
             options=[{'label': 'K-Means', 'value': 'K-Means'},
-                     {'label': 'GMM', 'value': 'GMM'},
+                     {'label': 'Gaussian Mixture Model with EM', 'value': 'Gaussian Mixture Model with EM'},
                      {'label': 'DBSCAN', 'value': 'DBSCAN'},
                      {'label': 'Mean-Shift', 'value': 'Mean-Shift'}
                      ],
@@ -674,7 +685,7 @@ def alg_selection2():
         dcc.Dropdown(
             id="dropdown_algorithm2",
             options=[{'label': 'K-Means', 'value': 'K-Means'},
-                     {'label': 'GMM', 'value': 'GMM'},
+                     {'label': 'Gaussian Mixture Model with EM', 'value': 'Gaussian Mixture Model with EM'},
                      {'label': 'DBSCAN', 'value': 'DBSCAN'},
                      {'label': 'Mean-Shift', 'value': 'Mean-Shift'}
                      ],
