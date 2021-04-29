@@ -1,11 +1,8 @@
 # GeoClusters
 
-
-**Overview**
-======
-
 GeoClusters is a prototype open-source data analysis web application intended for a quick, visual comparison of clustering algorithms run on a user-provided data set in real time. This project was originally intended to help introduce geoscientists/geoscience students with no prior programming background to a common data mining tool.  However, any numerically-based data set will work with this comparative tool. 
 
+---
 
 **Running GeoClusters**
 
@@ -19,6 +16,7 @@ With a data set uploaded, two sets of interactive parameter choices will appear 
 * number of clusters (used for K-Means and GMM only)
 * x, y, and z axes
 
+---
 
 **Getting the most out of cluster analysis comparison**
 
@@ -33,6 +31,7 @@ A few comparative examples include:
 
 To submit a bug report, please email a detailed description of the bug to this [email](j2bentley@student.bridgew.edu).
 
+---
 
 **Sample data sets were obtained from:**
 
