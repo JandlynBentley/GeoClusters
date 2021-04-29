@@ -1,6 +1,8 @@
 # GeoClusters
 
+
 **Overview**
+======
 
 GeoClusters is a prototype open-source data analysis web application intended for a quick, visual comparison of clustering algorithms run on a user-provided data set in real time. This project was originally intended to help introduce geoscientists/geoscience students with no prior programming background to a common data mining tool.  However, any numerically-based data set will work with this comparative tool. 
 
