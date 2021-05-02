@@ -16,10 +16,14 @@ import dash_html_components as html
 import xlrd
 
 import pandas as pd
+import numpy as np
 from sklearn.cluster import KMeans
 import plotly.graph_objs as go
 import itertools
 from sklearn import mixture
+from sklearn.cluster import MeanShift
+from sklearn.cluster import DBSCAN
+from sklearn.preprocessing import StandardScaler
 
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
@@ -34,7 +38,7 @@ GeoClusters is a visual tool for geoscientists to view their data under various 
     * Drag and drop or select a preprocessed CSV or Excel file in the blue upload area. 
         + This file should have all preceding and trailing comments removed.
         + Only the column names and column data should remain.
-        
+
     * If the file meets these conditions, interactive selectors will appear.
         + To compare clustering algorithms on your data, select parameters from these options.
         + The selections have a cascading effect. 
@@ -277,14 +281,23 @@ def main():
                     )
                 ]
             elif algorithm == 'DBSCAN':
+                fig = make_dbscan_2d_graph(new_df, x, y)
                 children = [
                     html.Br(),
-                    html.H5("A " + str(algorithm) + " graph is not available yet. Coming soon.")
+                    dcc.Graph(
+                        id='graph1',
+                        figure=fig
+                    ),
                 ]
             elif algorithm == 'Mean-Shift':
+                fig = make_mean_shift_2d_graph(new_df, x, y)
                 children = [
                     html.Br(),
-                    html.H5("A " + str(algorithm) + " graph is not available yet. Coming soon.")
+                    dcc.Graph(
+                        id='graph1',
+                        figure=fig
+                    ),
+                    html.H5(str(algorithm) + " takes a few extra seconds to process any changes, please be patient.")
                 ]
 
         # Make a 3D graph
@@ -314,14 +327,24 @@ def main():
                     )
                 ]
             elif algorithm == 'Mean-Shift':
+                fig = make_mean_shift_3d_graph(df, x, y, z)
                 children = [
                     html.Br(),
-                    html.H5("A " + str(algorithm) + " graph is not available yet. Coming soon.")
+                    dcc.Graph(
+                        id='graph1',
+                        figure=fig
+                    ),
+                    html.H5(str(algorithm) + " takes a few extra seconds to process any changes, please be patient.")
                 ]
             elif algorithm == 'DBSCAN':
+                fig = make_dbscan_3d_graph(df, x, y, z)
                 children = [
                     html.Br(),
-                    html.H5("A " + str(algorithm) + " graph is not available yet. Coming soon.")
+                    dcc.Graph(
+                        id='graph1',
+                        figure=fig
+                    ),
+                    # html.H5("A " + str(algorithm) + " graph is not available yet. Coming soon.")
                 ]
 
         return children
@@ -371,14 +394,23 @@ def main():
                     )
                 ]
             elif algorithm == 'DBSCAN':
+                fig = make_dbscan_2d_graph(new_df, x, y)
                 children = [
                     html.Br(),
-                    html.H5("A " + str(algorithm) + " graph is not available yet. Coming soon.")
+                    dcc.Graph(
+                        id='graph2',
+                        figure=fig
+                    ),
                 ]
             elif algorithm == 'Mean-Shift':
+                fig = make_mean_shift_2d_graph(new_df, x, y)
                 children = [
                     html.Br(),
-                    html.H5("A " + str(algorithm) + " graph is not available yet. Coming soon.")
+                    dcc.Graph(
+                        id='graph2',
+                        figure=fig
+                    ),
+                    html.H5(str(algorithm) + " takes a few extra seconds to process any changes, please be patient.")
                 ]
 
         # Make a 3D graph
@@ -408,14 +440,24 @@ def main():
                     )
                 ]
             elif algorithm == 'Mean-Shift':
+                fig = make_mean_shift_3d_graph(df, x, y, z)
                 children = [
                     html.Br(),
-                    html.H5("A " + str(algorithm) + " graph is not available yet. Coming soon.")
+                    dcc.Graph(
+                        id='graph2',
+                        figure=fig
+                    ),
+                    html.H5(str(algorithm) + " takes a few extra seconds to process any changes, please be patient.")
                 ]
             elif algorithm == 'DBSCAN':
+                fig = make_dbscan_3d_graph(df, x, y, z)
                 children = [
                     html.Br(),
-                    html.H5("A " + str(algorithm) + " graph is not available yet. Coming soon.")
+                    dcc.Graph(
+                        id='graph2',
+                        figure=fig
+                    ),
+                    # html.H5("A " + str(algorithm) + " graph is not available yet. Coming soon.")
                 ]
 
         return children
@@ -428,6 +470,10 @@ def main():
 
 # Given a file, parse the contents
 def parse_contents(contents, filename, date):
+
+    # First, clear the axes_options and data[] for a new incoming file
+    axes_options.clear()
+    data.clear()
 
     # Data is separated by a comma
     content_type, content_string = contents.split(',')
@@ -450,6 +496,9 @@ def parse_contents(contents, filename, date):
     columns = df.columns
     data_types = df.dtypes
 
+    print("columns: " + str(columns))
+    print("data types: " + str(data_types))
+
     # Parse the numerical-based attributes from the first row
     if columns is not None:
         for i in range(len(columns)):
@@ -457,6 +506,8 @@ def parse_contents(contents, filename, date):
                 axes_options.append(columns[i])
 
     data.append(df)
+
+    print(axes_options)
 
     enough_data = 0
     if len(axes_options) >= 2:
@@ -468,7 +519,6 @@ def parse_contents(contents, filename, date):
 
 # Return a figure for the 3D version of K-Means
 def make_k_means_3d_graph(df, x_axis, y_axis, z_axis, clusters):
-
     x = df[[x_axis, y_axis, z_axis]].values
     model = KMeans(n_clusters=clusters, init="k-means++", max_iter=300, n_init=10, random_state=0)
     y_clusters = model.fit_predict(x)
@@ -489,7 +539,6 @@ def make_k_means_3d_graph(df, x_axis, y_axis, z_axis, clusters):
 
 # Return a figure for the 2D version of K-Means
 def make_k_means_2d_graph(df, x_axis, y_axis, clusters):
-
     x = df[[x_axis, y_axis]].values
     model = KMeans(n_clusters=clusters, init="k-means++", max_iter=300, n_init=10, random_state=0)
     y_clusters = model.fit_predict(x)
@@ -512,7 +561,6 @@ def make_k_means_2d_graph(df, x_axis, y_axis, clusters):
 
 # Return a figure for the 2D version of GMM
 def make_gmm_2d_graph(df, x_axis, y_axis, clusters):
-
     color_iter = itertools.cycle(['cornflowerblue', 'darkorange', 'red', 'teal', 'gold', 'violet', 'black', 'green'])
     X = df[[x_axis, y_axis]].values
 
@@ -541,7 +589,6 @@ def make_gmm_2d_graph(df, x_axis, y_axis, clusters):
 
 # Return a figure for the 3D version of GMM
 def make_gmm_3d_graph(df, x_axis, y_axis, z_axis, clusters):
-
     color_iter = itertools.cycle(['cornflowerblue', 'darkorange', 'red', 'teal', 'gold', 'violet', 'black', 'green'])
     X = df[[x_axis, y_axis, z_axis]].values
 
@@ -568,6 +615,143 @@ def make_gmm_3d_graph(df, x_axis, y_axis, z_axis, clusters):
             marker=dict(color=color, size=10)))
 
     return fig_gmm
+
+
+# Return a figure for the 2D version of Mean-Shift
+def make_mean_shift_2d_graph(df, x_axis, y_axis):
+    x = df[[x_axis, y_axis]].values
+
+    model = MeanShift(bandwidth=None, seeds=None, bin_seeding=False)
+    y_clusters = model.fit(x)
+    labels = model.labels_
+
+    labels_unique = np.unique(labels)  # strictly for getting number of clusters
+    n_clusters_ = len(labels_unique)
+
+    title = "Mean-Shift with " + str(n_clusters_) + " Clusters"
+    layout = go.Layout(title=title,
+                       margin=dict(l=0, r=0),
+                       xaxis=dict(title=x_axis), yaxis=dict(title=y_axis),
+                       height=600, width=600)
+    fig_ms = go.Figure(layout=layout)
+    fig_ms.add_trace(go.Scatter(x=x[:, 0], y=x[:, 1], hovertext=[x_axis, y_axis], mode='markers',
+                                marker=dict(color=labels, size=10)))
+
+    fig_ms.update_layout(
+        hoverlabel=dict(
+            font_size=16,
+            font_family="Rockwell",
+        ))
+
+    return fig_ms
+
+
+# Return a figure for the 3D version of Mean-Shift
+def make_mean_shift_3d_graph(df, x_axis, y_axis, z_axis):
+    x = df[[x_axis, y_axis, z_axis]].values
+
+    model = MeanShift(bandwidth=None, seeds=None, bin_seeding=False)
+    model.fit(x)
+    labels = model.labels_
+
+    labels_unique = np.unique(labels)
+    n_clusters_ = len(labels_unique)
+
+    title = "Mean-Shift with " + str(n_clusters_) + " Clusters"
+    scene = dict(xaxis=dict(title=x_axis + ' <---'), yaxis=dict(title=y_axis + ' --->'),
+                 zaxis=dict(title=z_axis + ' <---'))
+
+    layout = go.Layout(title=title, margin=dict(l=0, r=0), scene=scene, height=800, width=800)
+    trace = go.Scatter3d(x=x[:, 0], y=x[:, 1], z=x[:, 2],
+                         mode='markers',
+                         marker=dict(color=labels, size=10, line=dict(color='black', width=10)))
+    graph_data = [trace]
+
+    fig_ms = go.Figure(data=graph_data, layout=layout)
+
+    fig_ms.update_layout(
+        hoverlabel=dict(
+            font_size=16,
+            font_family="Rockwell",
+        ))
+
+    return fig_ms
+
+
+# # Return a figure for the 2D version of DBSCAN
+def make_dbscan_2d_graph(df, x_axis, y_axis):
+    X = df[[x_axis, y_axis]].values
+    X = StandardScaler().fit_transform(X)
+    db = DBSCAN(eps=0.5, min_samples=10).fit(X)
+
+    core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
+    core_samples_mask[db.core_sample_indices_] = True
+    labels = db.labels_  # label = 0, 1, or -1 for noise
+    unique_labels = np.unique(labels)  # Black removed and is used for noise instead
+
+    title = "DBSCAN with " + str(len(unique_labels)) + " clusters (black represents noise)"
+    layout = go.Layout(title=title,
+                       margin=dict(l=0, r=0),
+                       xaxis=dict(title=x_axis),
+                       yaxis=dict(title=y_axis),
+                       height=600,
+                       width=600)
+    fig_db = go.Figure(layout=layout)
+
+    for k, col in zip(unique_labels, labels):
+        if k == -1:
+            col = 'black'
+        class_member_mask = (labels == k)
+
+        xy = X[class_member_mask & core_samples_mask]  # & is Bitwise AND
+        fig_db.add_trace(go.Scatter(
+            x=xy[:, 0], y=xy[:, 1],
+            mode='markers',
+            marker=dict(color=col, size=10)))
+        xy = X[class_member_mask & ~core_samples_mask]  # ~ is Bitwise NOT
+        fig_db.add_trace(go.Scatter(
+            x=xy[:, 0], y=xy[:, 1],
+            mode='markers',
+            marker=dict(color=col, size=10)))
+
+    return fig_db
+
+
+# Return a figure for the 3D version of DBSCAN
+def make_dbscan_3d_graph(df, x_axis, y_axis, z_axis):
+    X = df[[x_axis, y_axis, z_axis]].values
+    X = StandardScaler().fit_transform(X)
+    db = DBSCAN(eps=0.5, min_samples=10).fit(X)
+
+    core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
+    core_samples_mask[db.core_sample_indices_] = True
+    labels = db.labels_
+    unique_labels = np.unique(labels)
+
+    scene = dict(xaxis=dict(title=x_axis + ' <---'), yaxis=dict(title=y_axis + ' --->'),
+                 zaxis=dict(title=z_axis + ' <---'))
+    title = "DBSCAN with " + str(len(unique_labels)) + " clusters (black represents noise)"
+    layout = go.Layout(title=title, margin=dict(l=0, r=0), scene=scene, height=800, width=800)
+    fig_db = go.Figure(layout=layout)
+
+    for k, col in zip(unique_labels, labels):
+        if k == -1:
+            col = 'black'
+        class_member_mask = (labels == k)
+
+        xy = X[class_member_mask & core_samples_mask]
+        fig_db.add_trace(go.Scatter3d(
+            x=xy[:, 0], y=xy[:, 1], z=xy[:, 2],
+            mode='markers',
+            marker=dict(color=col, size=10)))
+
+        xy = X[class_member_mask & ~core_samples_mask]
+        fig_db.add_trace(go.Scatter3d(
+            x=xy[:, 0], y=xy[:, 1], z=xy[:, 2],
+            mode='markers',
+            marker=dict(color=col, size=10)))
+
+    return fig_db
 
 
 # LEFT COMPONENTS ---------------------------------------------------------------------------------------------------
