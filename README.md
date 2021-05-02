@@ -32,7 +32,7 @@ A few comparative examples include:
 * the same algorithm with the same number of dimensions but with varying axes’ attributes
 * any of the aforementioned with same or differing number of clusters (for K-Means and GMM)
 
-To submit a bug report, please email a detailed description of the bug to this [email](j2bentley@student.bridgew.edu).
+To submit a bug report, please email a detailed description of the bug to this email: j2bentley@student.bridgew.edu.
 
 ---
 
