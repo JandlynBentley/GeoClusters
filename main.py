@@ -186,7 +186,7 @@ def main():
             The parsing function takes in a data set, collects and stores the attributes in a global variable
             to be used for the axes' dropdown options, as well as a storing the data frame in another global variable.
             '''
-            # THIS NOW HOLDS AN INT THAT WILL BE USED TO CHECK IF ENOUGH DATA IS AVAILABLE TO MAKE A 2D GRAPH
+            # This now holds a boolean to be used to check if enough data is available to make a 2D graph
             enough_data = [parse_contents(c, n, d) for c, n, d in zip(list_of_contents, list_of_names, list_of_dates)]
 
             # Left side
@@ -335,7 +335,7 @@ def main():
                     )
                 ]
             elif algorithm == 'Mean-Shift':
-                fig = make_mean_shift_3d_graph(df, x, y, z)
+                fig = make_mean_shift_3d_graph(new_df, x, y, z)
                 children = [
                     html.Br(),
                     dcc.Graph(
@@ -345,7 +345,7 @@ def main():
                     html.H5(str(algorithm) + " takes a few extra seconds to process any changes, please be patient.")
                 ]
             elif algorithm == 'DBSCAN':
-                fig = make_dbscan_3d_graph(df, x, y, z)
+                fig = make_dbscan_3d_graph(new_df, x, y, z)
                 children = [
                     html.Br(),
                     dcc.Graph(
@@ -448,7 +448,7 @@ def main():
                     )
                 ]
             elif algorithm == 'Mean-Shift':
-                fig = make_mean_shift_3d_graph(df, x, y, z)
+                fig = make_mean_shift_3d_graph(new_df, x, y, z)
                 children = [
                     html.Br(),
                     dcc.Graph(
@@ -458,14 +458,13 @@ def main():
                     html.H5(str(algorithm) + " takes a few extra seconds to process any changes, please be patient.")
                 ]
             elif algorithm == 'DBSCAN':
-                fig = make_dbscan_3d_graph(df, x, y, z)
+                fig = make_dbscan_3d_graph(new_df, x, y, z)
                 children = [
                     html.Br(),
                     dcc.Graph(
                         id='graph2',
                         figure=fig
-                    ),
-                    # html.H5("A " + str(algorithm) + " graph is not available yet. Coming soon.")
+                    )
                 ]
 
         return children
@@ -504,9 +503,6 @@ def parse_contents(contents, filename, date):
     columns = df.columns
     data_types = df.dtypes
 
-    print("columns: " + str(columns))
-    print("data types: " + str(data_types))
-
     # Parse the numerical-based attributes from the first row
     if columns is not None:
         for i in range(len(columns)):
@@ -515,13 +511,10 @@ def parse_contents(contents, filename, date):
 
     data.append(df)
 
-    print(axes_options)
-
     enough_data = False
     if len(axes_options) >= 2:
         enough_data = True
-    # 0 = there is not enough data to make a 2D graph
-    # 1 = there is enough data to make a 2D graph
+
     return enough_data
 
 
@@ -556,7 +549,6 @@ def make_k_means_2d_graph(df, x_axis, y_axis, clusters):
                        xaxis=dict(title=x_axis), yaxis=dict(title=y_axis), height=600, width=600)
     fig_k_means = go.Figure(layout=layout)
     fig_k_means.add_trace(go.Scatter(x=x[:, 0], y=x[:, 1],
-                                     hovertext=[x_axis, y_axis],  # no attribute names displayed :(
                                      mode='markers',
                                      marker=dict(color=labels, size=10)))
     fig_k_means.update_layout(
@@ -633,7 +625,7 @@ def make_mean_shift_2d_graph(df, x_axis, y_axis):
     y_clusters = model.fit(x)
     labels = model.labels_
 
-    labels_unique = np.unique(labels)  # strictly for getting number of clusters
+    labels_unique = np.unique(labels)
     n_clusters_ = len(labels_unique)
 
     title = "Mean-Shift with " + str(n_clusters_) + " Clusters"
@@ -686,7 +678,7 @@ def make_mean_shift_3d_graph(df, x_axis, y_axis, z_axis):
     return fig_ms
 
 
-# # Return a figure for the 2D version of DBSCAN
+# Return a figure for the 2D version of DBSCAN
 def make_dbscan_2d_graph(df, x_axis, y_axis):
     X = df[[x_axis, y_axis]].values
     X = StandardScaler().fit_transform(X)
