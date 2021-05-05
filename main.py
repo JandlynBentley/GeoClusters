@@ -75,6 +75,8 @@ def main():
                 }
             ),
             html.Br(),
+            html.Br(),
+            html.Br(),
 
             # Instructions to the user displayed with markdown
             dcc.Markdown(
@@ -138,25 +140,24 @@ def main():
 
         # Div 3: Holds the upload tool
         html.Div([
-            # Container for file upload component
+            html.Br(),
             dcc.Upload(
                 id='upload-data',
                 children=html.Div([
-                    'Drag and Drop or ',
                     html.A('Select Files'),
                     html.Center()
                 ]),
                 style={
-                    'width': '50%',
-                    'height': '60px',
+                    'width': '10%',
+                    'height': '65px',
                     'lineHeight': '60px',
                     'borderWidth': '1px',
-                    'borderStyle': 'dashed',
-                    'borderRadius': '100px',
+                    'borderStyle': 'solid',
+                    'borderRadius': '10px',
                     'textAlign': 'center',
-                    'font-size': '20px',
+                    'font-size': '25px',
                     'margin-top': '10px',
-                    'margin-left': '25%',
+                    'margin-left': '45%',
                     'margin-bottom': '10px',
                     'backgroundColor': '#d6f5f5',
                 },
@@ -166,7 +167,12 @@ def main():
             html.Br()
         ])  # Div 3 ends
 
-    ])  # end of app layout
+    ],
+        style={
+            'padding': '100px',
+            'box-sizing': 'border-box',
+        },
+    )  # end of app layout
 
     # Given the data set from Upload, parse the data into a data frame and collect axis options
     @app.callback(Output('output-dropdown-area1', 'children'),
@@ -195,7 +201,8 @@ def main():
             clusters2 = num_clusters_selection2()  # Number of predicted clusters via radio buttons
             axes2 = html.Div(axes_selection_xyz_2())  # x, y, z axes' dropdowns
 
-            if enough_data[0] == 0:
+            # if false
+            if not enough_data[0]:
                 children = [
                     html.H5(
                         children='The file uploaded did not have enough data to make a 2D graph.',
@@ -204,7 +211,8 @@ def main():
                         }
                     ),
                 ]
-            if enough_data[0] == 1:
+            # if true
+            if enough_data[0]:
                 children = [
 
                     # LEFT SIDE -------
@@ -509,9 +517,9 @@ def parse_contents(contents, filename, date):
 
     print(axes_options)
 
-    enough_data = 0
+    enough_data = False
     if len(axes_options) >= 2:
-        enough_data = 1
+        enough_data = True
     # 0 = there is not enough data to make a 2D graph
     # 1 = there is enough data to make a 2D graph
     return enough_data
@@ -612,7 +620,7 @@ def make_gmm_3d_graph(df, x_axis, y_axis, z_axis, clusters):
         fig_gmm.add_trace(go.Scatter3d(
             x=X[Y_ == i, 0], y=X[Y_ == i, 1], z=X[Y_ == i, 2],
             mode='markers',
-            marker=dict(color=color, size=10)))
+            marker=dict(color=color, size=10), line=dict(color='black', width=10)))
 
     return fig_gmm
 
