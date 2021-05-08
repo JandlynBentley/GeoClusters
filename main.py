@@ -682,7 +682,7 @@ def make_mean_shift_3d_graph(df, x_axis, y_axis, z_axis):
 def make_dbscan_2d_graph(df, x_axis, y_axis):
     X = df[[x_axis, y_axis]].values
     X = StandardScaler().fit_transform(X)
-    db = DBSCAN(eps=0.5, min_samples=10).fit(X)
+    db = DBSCAN(eps=0.5, min_samples=4).fit(X)
 
     core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
     core_samples_mask[db.core_sample_indices_] = True
@@ -721,7 +721,7 @@ def make_dbscan_2d_graph(df, x_axis, y_axis):
 def make_dbscan_3d_graph(df, x_axis, y_axis, z_axis):
     X = df[[x_axis, y_axis, z_axis]].values
     X = StandardScaler().fit_transform(X)
-    db = DBSCAN(eps=0.5, min_samples=10).fit(X)
+    db = DBSCAN(eps=0.5, min_samples=6).fit(X)  # min samples = 2 * number of dimensions (3)
 
     core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
     core_samples_mask[db.core_sample_indices_] = True
