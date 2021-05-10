@@ -522,9 +522,9 @@ def parse_contents(contents, filename, date):
 def make_k_means_3d_graph(df, x_axis, y_axis, z_axis, clusters):
 
     x = df[[x_axis, y_axis, z_axis]].values
-    model = KMeans(n_clusters=clusters, init="k-means++", max_iter=300, n_init=10, random_state=0)
-    y_clusters = model.fit_predict(x)
-    labels = model.labels_
+    kmeans = KMeans(n_clusters=clusters, init="k-means++", max_iter=300, n_init=10, random_state=0)
+    y_clusters = kmeans.fit_predict(x)
+    labels = kmeans.labels_
 
     scene = dict(xaxis=dict(title=x_axis + ' <---'),
                  yaxis=dict(title=y_axis + ' --->'),
@@ -547,9 +547,9 @@ def make_k_means_3d_graph(df, x_axis, y_axis, z_axis, clusters):
 def make_k_means_2d_graph(df, x_axis, y_axis, clusters):
 
     x = df[[x_axis, y_axis]].values
-    model = KMeans(n_clusters=clusters, init="k-means++", max_iter=300, n_init=10, random_state=0)
-    y_clusters = model.fit_predict(x)
-    labels = model.labels_
+    kmeans = KMeans(n_clusters=clusters, init="k-means++", max_iter=300, n_init=10, random_state=0)
+    y_clusters = kmeans.fit_predict(x)
+    labels = kmeans.labels_
 
     layout = go.Layout(title="K-Means",
                        margin=dict(l=0, r=0),
@@ -627,9 +627,9 @@ def make_gmm_3d_graph(df, x_axis, y_axis, z_axis, clusters):
 def make_mean_shift_2d_graph(df, x_axis, y_axis):
 
     x = df[[x_axis, y_axis]].values
-    model = MeanShift(bandwidth=None, seeds=None, bin_seeding=False)
-    y_clusters = model.fit(x)
-    labels = model.labels_
+    ms = MeanShift(bandwidth=None, seeds=None, bin_seeding=False)
+    y_clusters = ms.fit(x)
+    labels = ms.labels_
 
     labels_unique = np.unique(labels)
     n_clusters_ = len(labels_unique)
@@ -652,10 +652,10 @@ def make_mean_shift_2d_graph(df, x_axis, y_axis):
 def make_mean_shift_3d_graph(df, x_axis, y_axis, z_axis):
 
     x = df[[x_axis, y_axis, z_axis]].values
-    model = MeanShift(bandwidth=None, seeds=None, bin_seeding=False)
-    model.fit(x)
+    ms = MeanShift(bandwidth=None, seeds=None, bin_seeding=False)
+    ms.fit(x)
 
-    labels = model.labels_
+    labels = ms.labels_
     unique_labels = np.unique(labels)
     n_clusters = len(unique_labels)
 
