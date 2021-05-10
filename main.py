@@ -520,54 +520,61 @@ def parse_contents(contents, filename, date):
 
 # Return a figure for the 3D version of K-Means
 def make_k_means_3d_graph(df, x_axis, y_axis, z_axis, clusters):
+
     x = df[[x_axis, y_axis, z_axis]].values
     model = KMeans(n_clusters=clusters, init="k-means++", max_iter=300, n_init=10, random_state=0)
     y_clusters = model.fit_predict(x)
-
-    scene = dict(xaxis=dict(title=x_axis + ' <---'), yaxis=dict(title=y_axis + ' --->'),
-                 zaxis=dict(title=z_axis + ' <---'))
     labels = model.labels_
 
-    trace = go.Scatter3d(x=x[:, 0], y=x[:, 1], z=x[:, 2],
-                         mode='markers',
-                         marker=dict(color=labels, size=10, line=dict(color='black', width=10)))
-    layout = go.Layout(title="K-Means", margin=dict(l=0, r=0), scene=scene, height=800, width=800)
-    graph_data = [trace]
-    fig_k_means = go.Figure(data=graph_data, layout=layout)
+    scene = dict(xaxis=dict(title=x_axis + ' <---'),
+                 yaxis=dict(title=y_axis + ' --->'),
+                 zaxis=dict(title=z_axis + ' <---'))
+    layout = go.Layout(title="K-Means",
+                       margin=dict(l=0, r=0),
+                       scene=scene,
+                       height=800, width=800)
 
+    fig_k_means = go.Figure(layout=layout)
+    fig_k_means.add_trace(go.Scatter3d(x=x[:, 0], y=x[:, 1], z=x[:, 2],
+                                       mode='markers',
+                                       marker=dict(color=labels,
+                                                   size=10,
+                                                   line=dict(color='black', width=10))))
     return fig_k_means
 
 
 # Return a figure for the 2D version of K-Means
 def make_k_means_2d_graph(df, x_axis, y_axis, clusters):
+
     x = df[[x_axis, y_axis]].values
     model = KMeans(n_clusters=clusters, init="k-means++", max_iter=300, n_init=10, random_state=0)
     y_clusters = model.fit_predict(x)
     labels = model.labels_
 
-    layout = go.Layout(title="K-Means", margin=dict(l=0, r=0),
-                       xaxis=dict(title=x_axis), yaxis=dict(title=y_axis), height=600, width=600)
+    layout = go.Layout(title="K-Means",
+                       margin=dict(l=0, r=0),
+                       xaxis=dict(title=x_axis),
+                       yaxis=dict(title=y_axis),
+                       height=600, width=600)
+
     fig_k_means = go.Figure(layout=layout)
     fig_k_means.add_trace(go.Scatter(x=x[:, 0], y=x[:, 1],
                                      mode='markers',
                                      marker=dict(color=labels, size=10)))
-    fig_k_means.update_layout(
-        hoverlabel=dict(
-            font_size=16,
-            font_family="Rockwell",
-        ))
     return fig_k_means
 
 
 # Return a figure for the 2D version of GMM
 def make_gmm_2d_graph(df, x_axis, y_axis, clusters):
-    color_iter = itertools.cycle(['cornflowerblue', 'darkorange', 'red', 'teal', 'gold', 'violet', 'black', 'green'])
-    X = df[[x_axis, y_axis]].values
 
-    # Fit a Gaussian mixture with EM
-    gmm = mixture.GaussianMixture(n_components=clusters, covariance_type='full').fit(X)
-    cluster_labels = gmm.predict(X)
+    x = df[[x_axis, y_axis]].values
+    gmm = mixture.GaussianMixture(n_components=clusters, covariance_type='full').fit(x)
+    cluster_labels = gmm.predict(x)
+    means = gmm.means_
+    covariances = gmm.covariances_
 
+    color_iter = itertools.cycle([
+        'cornflowerblue', 'darkorange', 'red', 'teal', 'gold', 'violet', 'black', 'green'])
     layout = go.Layout(title="Gaussian Mixture Model with EM",
                        margin=dict(l=0, r=0),
                        xaxis=dict(title=x_axis),
@@ -576,31 +583,29 @@ def make_gmm_2d_graph(df, x_axis, y_axis, clusters):
                        width=600)
     fig_gmm = go.Figure(layout=layout)
 
-    def plot_gmm_results(X, Y_, means, covariances):
-        for i, (mean, covar, color) in enumerate(zip(means, covariances, color_iter)):
-            fig_gmm.add_trace(go.Scatter(
-                x=X[Y_ == i, 0], y=X[Y_ == i, 1],
-                mode='markers',
-                marker=dict(color=color, size=10)))
+    for i, (mean, covar, color) in enumerate(zip(means, covariances, color_iter)):
+        fig_gmm.add_trace(go.Scatter(
+            x=x[cluster_labels == i, 0], y=x[cluster_labels == i, 1],
+            mode='markers',
+            marker=dict(color=color, size=10)))
 
-    plot_gmm_results(X, cluster_labels, gmm.means_, gmm.covariances_)
     return fig_gmm
 
 
 # Return a figure for the 3D version of GMM
 def make_gmm_3d_graph(df, x_axis, y_axis, z_axis, clusters):
-    color_iter = itertools.cycle(['cornflowerblue', 'darkorange', 'red', 'teal', 'gold', 'violet', 'black', 'green'])
-    X = df[[x_axis, y_axis, z_axis]].values
 
-    scene = dict(xaxis=dict(title=x_axis + ' <---'), yaxis=dict(title=y_axis + ' --->'),
-                 zaxis=dict(title=z_axis + ' <---'))
-
-    # Fit a Gaussian mixture with EM
-    gmm = mixture.GaussianMixture(n_components=clusters, covariance_type='full').fit(X)
-    Y_ = gmm.predict(X)
+    x = df[[x_axis, y_axis, z_axis]].values
+    gmm = mixture.GaussianMixture(n_components=clusters, covariance_type='full').fit(x)
+    cluster_labels = gmm.predict(x)
     means = gmm.means_
     covariances = gmm.covariances_
 
+    color_iter = itertools.cycle([
+        'cornflowerblue', 'darkorange', 'red', 'teal', 'gold', 'violet', 'black', 'green'])
+    scene = dict(xaxis=dict(title=x_axis + ' <---'),
+                 yaxis=dict(title=y_axis + ' --->'),
+                 zaxis=dict(title=z_axis + ' <---'))
     layout = go.Layout(title='Gaussian Mixture Model with EM',
                        margin=dict(l=0, r=0),
                        scene=scene,
@@ -610,17 +615,18 @@ def make_gmm_3d_graph(df, x_axis, y_axis, z_axis, clusters):
 
     for i, (mean, covar, color) in enumerate(zip(means, covariances, color_iter)):
         fig_gmm.add_trace(go.Scatter3d(
-            x=X[Y_ == i, 0], y=X[Y_ == i, 1], z=X[Y_ == i, 2],
+            x=x[cluster_labels == i, 0], y=x[cluster_labels == i, 1], z=x[cluster_labels == i, 2],
             mode='markers',
-            marker=dict(color=color, size=10), line=dict(color='black', width=10)))
+            marker=dict(color=color, size=10),
+            line=dict(color='black', width=10)))
 
     return fig_gmm
 
 
 # Return a figure for the 2D version of Mean-Shift
 def make_mean_shift_2d_graph(df, x_axis, y_axis):
-    x = df[[x_axis, y_axis]].values
 
+    x = df[[x_axis, y_axis]].values
     model = MeanShift(bandwidth=None, seeds=None, bin_seeding=False)
     y_clusters = model.fit(x)
     labels = model.labels_
@@ -634,68 +640,60 @@ def make_mean_shift_2d_graph(df, x_axis, y_axis):
                        xaxis=dict(title=x_axis), yaxis=dict(title=y_axis),
                        height=600, width=600)
     fig_ms = go.Figure(layout=layout)
-    fig_ms.add_trace(go.Scatter(x=x[:, 0], y=x[:, 1], hovertext=[x_axis, y_axis], mode='markers',
+
+    fig_ms.add_trace(go.Scatter(x=x[:, 0], y=x[:, 1],
+                                hovertext=[x_axis, y_axis],
+                                mode='markers',
                                 marker=dict(color=labels, size=10)))
-
-    fig_ms.update_layout(
-        hoverlabel=dict(
-            font_size=16,
-            font_family="Rockwell",
-        ))
-
     return fig_ms
 
 
 # Return a figure for the 3D version of Mean-Shift
 def make_mean_shift_3d_graph(df, x_axis, y_axis, z_axis):
-    x = df[[x_axis, y_axis, z_axis]].values
 
+    x = df[[x_axis, y_axis, z_axis]].values
     model = MeanShift(bandwidth=None, seeds=None, bin_seeding=False)
     model.fit(x)
+
     labels = model.labels_
+    unique_labels = np.unique(labels)
+    n_clusters = len(unique_labels)
 
-    labels_unique = np.unique(labels)
-    n_clusters_ = len(labels_unique)
-
-    title = "Mean-Shift with " + str(n_clusters_) + " Clusters"
+    title = "Mean-Shift with " + str(n_clusters) + " Clusters"
     scene = dict(xaxis=dict(title=x_axis + ' <---'), yaxis=dict(title=y_axis + ' --->'),
                  zaxis=dict(title=z_axis + ' <---'))
+    layout = go.Layout(title=title,
+                       margin=dict(l=0, r=0),
+                       scene=scene,
+                       height=800, width=800)
+    fig_ms = go.Figure(layout=layout)
 
-    layout = go.Layout(title=title, margin=dict(l=0, r=0), scene=scene, height=800, width=800)
-    trace = go.Scatter3d(x=x[:, 0], y=x[:, 1], z=x[:, 2],
-                         mode='markers',
-                         marker=dict(color=labels, size=10, line=dict(color='black', width=10)))
-    graph_data = [trace]
-
-    fig_ms = go.Figure(data=graph_data, layout=layout)
-
-    fig_ms.update_layout(
-        hoverlabel=dict(
-            font_size=16,
-            font_family="Rockwell",
-        ))
-
+    fig_ms.add_trace(go.Scatter3d(x=x[:, 0], y=x[:, 1], z=x[:, 2],
+                                  mode='markers',
+                                  marker=dict(color=labels, size=10,
+                                              line=dict(color='black', width=10))))
     return fig_ms
 
 
 # Return a figure for the 2D version of DBSCAN
 def make_dbscan_2d_graph(df, x_axis, y_axis):
-    X = df[[x_axis, y_axis]].values
-    X = StandardScaler().fit_transform(X)
-    db = DBSCAN(eps=0.5, min_samples=4).fit(X)
+
+    x = df[[x_axis, y_axis]].values
+    x = StandardScaler().fit_transform(x)
+    db = DBSCAN(eps=0.5, min_samples=4).fit(x)
 
     core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
     core_samples_mask[db.core_sample_indices_] = True
-    labels = db.labels_  # label = 0, 1, or -1 for noise
-    unique_labels = np.unique(labels)  # Black removed and is used for noise instead
+    labels = db.labels_                 # label = 0, 1, or -1 for noise
+    unique_labels = np.unique(labels)   # Black removed and is used for noise instead
+    n_clusters = len(unique_labels)
 
-    title = "DBSCAN with " + str(len(unique_labels)) + " clusters (black represents noise)"
+    title = "DBSCAN with " + str(n_clusters) + " clusters (black represents noise)"
     layout = go.Layout(title=title,
                        margin=dict(l=0, r=0),
                        xaxis=dict(title=x_axis),
                        yaxis=dict(title=y_axis),
-                       height=600,
-                       width=600)
+                       height=600, width=600)
     fig_db = go.Figure(layout=layout)
 
     for k, col in zip(unique_labels, labels):
@@ -703,12 +701,12 @@ def make_dbscan_2d_graph(df, x_axis, y_axis):
             col = 'black'
         class_member_mask = (labels == k)
 
-        xy = X[class_member_mask & core_samples_mask]  # & is Bitwise AND
+        xy = x[class_member_mask & core_samples_mask]  # & is Bitwise AND
         fig_db.add_trace(go.Scatter(
             x=xy[:, 0], y=xy[:, 1],
             mode='markers',
             marker=dict(color=col, size=10)))
-        xy = X[class_member_mask & ~core_samples_mask]  # ~ is Bitwise NOT
+        xy = x[class_member_mask & ~core_samples_mask]  # ~ is Bitwise NOT
         fig_db.add_trace(go.Scatter(
             x=xy[:, 0], y=xy[:, 1],
             mode='markers',
@@ -719,9 +717,10 @@ def make_dbscan_2d_graph(df, x_axis, y_axis):
 
 # Return a figure for the 3D version of DBSCAN
 def make_dbscan_3d_graph(df, x_axis, y_axis, z_axis):
-    X = df[[x_axis, y_axis, z_axis]].values
-    X = StandardScaler().fit_transform(X)
-    db = DBSCAN(eps=0.5, min_samples=6).fit(X)  # min samples = 2 * number of dimensions (3)
+
+    x = df[[x_axis, y_axis, z_axis]].values
+    x = StandardScaler().fit_transform(x)
+    db = DBSCAN(eps=0.5, min_samples=6).fit(x)  # min samples = 2 * number of dimensions (3)
 
     core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
     core_samples_mask[db.core_sample_indices_] = True
@@ -731,7 +730,10 @@ def make_dbscan_3d_graph(df, x_axis, y_axis, z_axis):
     scene = dict(xaxis=dict(title=x_axis + ' <---'), yaxis=dict(title=y_axis + ' --->'),
                  zaxis=dict(title=z_axis + ' <---'))
     title = "DBSCAN with " + str(len(unique_labels)) + " clusters (black represents noise)"
-    layout = go.Layout(title=title, margin=dict(l=0, r=0), scene=scene, height=800, width=800)
+    layout = go.Layout(title=title,
+                       margin=dict(l=0, r=0),
+                       scene=scene,
+                       height=800, width=800)
     fig_db = go.Figure(layout=layout)
 
     for k, col in zip(unique_labels, labels):
@@ -739,13 +741,13 @@ def make_dbscan_3d_graph(df, x_axis, y_axis, z_axis):
             col = 'black'
         class_member_mask = (labels == k)
 
-        xy = X[class_member_mask & core_samples_mask]
+        xy = x[class_member_mask & core_samples_mask]
         fig_db.add_trace(go.Scatter3d(
             x=xy[:, 0], y=xy[:, 1], z=xy[:, 2],
             mode='markers',
             marker=dict(color=col, size=10)))
 
-        xy = X[class_member_mask & ~core_samples_mask]
+        xy = x[class_member_mask & ~core_samples_mask]
         fig_db.add_trace(go.Scatter3d(
             x=xy[:, 0], y=xy[:, 1], z=xy[:, 2],
             mode='markers',
