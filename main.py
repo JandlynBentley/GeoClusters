@@ -272,41 +272,20 @@ def main():
 
             if algorithm == 'K-Means':
                 fig = make_k_means_2d_graph(new_df, x, y, clusters)
-                children = [
-                    html.Br(),
-                    dcc.Graph(
-                        id='graph1',
-                        figure=fig
-                    ),
-                ]
             elif algorithm == 'Gaussian Mixture Model with EM':
                 fig = make_gmm_2d_graph(new_df, x, y, clusters)
-                children = [
-                    html.Br(),
-                    dcc.Graph(
-                        id='graph1',
-                        figure=fig
-                    )
-                ]
             elif algorithm == 'DBSCAN':
                 fig = make_dbscan_2d_graph(new_df, x, y)
-                children = [
-                    html.Br(),
-                    dcc.Graph(
-                        id='graph1',
-                        figure=fig
-                    ),
-                ]
             elif algorithm == 'Mean-Shift':
                 fig = make_mean_shift_2d_graph(new_df, x, y)
-                children = [
-                    html.Br(),
-                    dcc.Graph(
-                        id='graph1',
-                        figure=fig
-                    ),
-                    html.H5(str(algorithm) + " takes a few extra seconds to process any changes, please be patient.")
-                ]
+
+            children = [
+                html.Br(),
+                dcc.Graph(
+                    id='graph1',
+                    figure=fig
+                ),
+            ]
 
         # Make a 3D graph
         elif alg_bool and (choice2d3d == '3D') and x_bool and y_bool and z_bool:
@@ -318,42 +297,20 @@ def main():
 
             if algorithm == 'K-Means':
                 fig = make_k_means_3d_graph(new_df, x, y, z, clusters)
-                children = [
-                    html.Br(),
-                    dcc.Graph(
-                        id='graph1',
-                        figure=fig
-                    ),
-                ]
             elif algorithm == 'Gaussian Mixture Model with EM':
                 fig = make_gmm_3d_graph(new_df, x, y, z, clusters)
-                children = [
-                    html.Br(),
-                    dcc.Graph(
-                        id='graph1',
-                        figure=fig
-                    )
-                ]
             elif algorithm == 'Mean-Shift':
                 fig = make_mean_shift_3d_graph(new_df, x, y, z)
-                children = [
-                    html.Br(),
-                    dcc.Graph(
-                        id='graph1',
-                        figure=fig
-                    ),
-                    html.H5(str(algorithm) + " takes a few extra seconds to process any changes, please be patient.")
-                ]
             elif algorithm == 'DBSCAN':
                 fig = make_dbscan_3d_graph(new_df, x, y, z)
-                children = [
-                    html.Br(),
-                    dcc.Graph(
-                        id='graph1',
-                        figure=fig
-                    ),
-                    # html.H5("A " + str(algorithm) + " graph is not available yet. Coming soon.")
-                ]
+
+            children = [
+                html.Br(),
+                dcc.Graph(
+                    id='graph1',
+                    figure=fig
+                ),
+            ]
 
         return children
 
@@ -385,41 +342,20 @@ def main():
 
             if algorithm == 'K-Means':
                 fig = make_k_means_2d_graph(new_df, x, y, clusters)
-                children = [
-                    html.Br(),
-                    dcc.Graph(
-                        id='graph2',
-                        figure=fig
-                    ),
-                ]
             elif algorithm == 'Gaussian Mixture Model with EM':
                 fig = make_gmm_2d_graph(new_df, x, y, clusters)
-                children = [
-                    html.Br(),
-                    dcc.Graph(
-                        id='graph2',
-                        figure=fig
-                    )
-                ]
             elif algorithm == 'DBSCAN':
                 fig = make_dbscan_2d_graph(new_df, x, y)
-                children = [
-                    html.Br(),
-                    dcc.Graph(
-                        id='graph2',
-                        figure=fig
-                    ),
-                ]
             elif algorithm == 'Mean-Shift':
                 fig = make_mean_shift_2d_graph(new_df, x, y)
-                children = [
-                    html.Br(),
-                    dcc.Graph(
-                        id='graph2',
-                        figure=fig
-                    ),
-                    html.H5(str(algorithm) + " takes a few extra seconds to process any changes, please be patient.")
-                ]
+
+            children = [
+                html.Br(),
+                dcc.Graph(
+                    id='graph2',
+                    figure=fig
+                ),
+            ]
 
         # Make a 3D graph
         elif alg_bool and (choice2d3d == '3D') and x_bool and y_bool and z_bool:
