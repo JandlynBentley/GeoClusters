@@ -27,24 +27,36 @@ from sklearn.preprocessing import StandardScaler
 
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-markdown_text1 = '''
-GeoClusters is a visual tool for geoscientists to view their data under various clustering algorithms in real time.
+markdown_text = '''
+#### GeoClusters is a visual tool for geoscientists to compare their data under different clustering algorithms. ####
 
+
+#### To use the clustering comparative tool: ####
+
+>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;o **Click the blue button to select a preprocessed CSV or Excel (xls) file.**
+ 
+>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- The file must have any preceding and trailing comments removed.
+
+>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Only the column names and column data should remain.
+>&nbsp;
+
+>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;o **If the file meets these conditions, sub-menus to select algorithm and 
+graph parameters will appear.**
+
+>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- To compare clustering algorithms on your data, 
+select parameters from these options.
+
+>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- A new graph will only appear if: 
+
+>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* An algorithm is selected.
+
+>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* X and Y axes must be 
+selected to produce a 2D graph, and X, Y, and Z selected for a 3D graph.   
+>
 &nbsp;
+>
+>**Note:** The "number of predicted clusters" option will only be applied to K-Means and GMM algorithms.
 
-**To use the clustering comparative tool:**
-&nbsp;
-
-    * Drag and drop or select a preprocessed CSV or Excel file in the blue upload area. 
-        + This file should have all preceding and trailing comments removed.
-        + Only the column names and column data should remain.
-
-    * If the file meets these conditions, interactive selectors will appear.
-        + To compare clustering algorithms on your data, select parameters from these options.
-        + The selections have a cascading effect. 
-            - If no algorithm is selected, a new graph will not appear.
-            - Appropriate number of axes must be chosen to produce a 2D or 3D graph.   
-            - The "number of predicted clusters" option will only be applied to K-Means and GMM algorithms.    
 &nbsp;
 
 The code for this open-source tool can be found on [Github](https://github.com/JandlynBentley/GeoClusters).
@@ -64,14 +76,17 @@ def main():
             html.H1(
                 children='GeoClusters',
                 style={
-                    'color': 'green',
-                    'textAlign': 'center'
+                    'color': '#558066',
+                    'textAlign': 'center',
+                    'font-size': '72px',
+
                 }
             ),
-            html.H3(
+            html.H2(
                 children='A Comparative Cluster Analysis Tool',
                 style={
-                    'textAlign': 'center'
+                    'textAlign': 'center',
+                    'font-size': '40px',
                 }
             ),
             html.Br(),
@@ -80,13 +95,24 @@ def main():
 
             # Instructions to the user displayed with markdown
             dcc.Markdown(
-                children=markdown_text1,
+                children=[
+                    markdown_text,
+                ],
                 style={
                     'textAlign': 'left',
-                    'font-size': '18px',
-                    'width': '50%'
+                    'font-size': '22px',
+                    'padding-right': '50px',
+                    'padding-left': '50px',
+                    'padding-top': '30px',
+                    'padding-bottom': '30px',
+                    'width': '60%',
+                    'backgroundColor': '#e3faec',
+                    'margin-left': '18%',
                 }
             ),
+            html.Br(),
+            html.Br(),
+            html.Br(),
             html.Br(),
         ]),  # Div 1 ends
 
@@ -99,14 +125,17 @@ def main():
                 html.Div([
                     html.Div(
                         id='output-dropdown-area1',
-                        style={'width': '50%'}
+                        style={
+                            'padding-left': '75px',
+                            'padding-bottom': '50px',
+                        }
                     )
                 ]),
             ],
                 # Set all of the interactive components and graphs into two columns
                 style={
                     'columnCount': 2,
-                    'columnGap': '100px'
+                    'columnGap': '100px',
                 }
             ),
 
@@ -118,22 +147,26 @@ def main():
                         html.Div(
                             id='output-graph-area1',
                             style={'width': '50%',
-                                   'display': 'inline-block'},
-                        )
+                                   'display': 'inline-block',
+                                   'margin-left': '35%',
+                                   }
+                        ),
                     ]),
                     html.Div(
                         id='output-graph-area2',
                         style={'width': '50%',
-                               'display': 'inline-block'},
-                    )
+                               'display': 'inline-block',
+                               'margin-left': '35%',
+                               },
+                    ),
                 ]),
             ],
                 # Set all of the interactive components and graphs into two columns
                 style={
                     'columnCount': 2,
-                    'columnGap': '100px'
+                    'columnGap': '50px',
                 }
-            )
+            ),
 
         ]),  # Div 2 ends
         # ************************************************************************************************
@@ -145,13 +178,12 @@ def main():
                 id='upload-data',
                 children=html.Div([
                     html.A('Select Files'),
-                    html.Center()
                 ]),
                 style={
                     'width': '10%',
                     'height': '65px',
                     'lineHeight': '60px',
-                    'borderWidth': '1px',
+                    'borderWidth': '2px',
                     'borderStyle': 'solid',
                     'borderRadius': '10px',
                     'textAlign': 'center',
@@ -170,7 +202,7 @@ def main():
     ],
         style={
             'padding': '100px',
-            'box-sizing': 'border-box',
+            'box-sizing': 'border-box'
         },
     )  # end of app layout
 
@@ -216,26 +248,45 @@ def main():
                 children = [
 
                     # LEFT SIDE -------
-                    html.H5(
-                        children='-------- First Algorithm --------',
+                    html.H3(
+                        children='---------------------  First Graph  ---------------------',
                         style={
-                            'color': 'green',
-                            'textAlign': 'center'
+                            'color': 'black',
+                            'textAlign': 'center',
+                            'font-size': '45px',
+                            'padding-top': '30px',
+                            'padding-bottom': '30px',
+                            'backgroundColor': '#679e7d',
+                            'borderStyle': 'solid',
+                            'borderWidth': '1px',
                         }
                     ),
+                    html.Br(),
                     alg1,
                     graph2d3d_1,
                     clusters1,
                     axes1,
 
+
                     # RIGHT SIDE -------
-                    html.H5(
-                        children='-------- Second Algorithm --------',
+                    html.Br(),
+                    html.Br(),
+                    html.Br(),
+
+                    html.H3(
+                        children='---------------------  Second Graph  ---------------------',
                         style={
-                            'color': 'green',
-                            'textAlign': 'center'
+                            'color': 'black',
+                            'textAlign': 'center',
+                            'font-size': '45px',
+                            'padding-top': '30px',
+                            'padding-bottom': '30px',
+                            'backgroundColor': '#679e7d',
+                            'borderStyle': 'solid',
+                            'borderWidth': '1px',
                         }
                     ),
+                    html.Br(),
                     alg2,
                     graph2d3d_2,
                     clusters2,
