@@ -25,7 +25,6 @@ from sklearn.cluster import MeanShift
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
 
-
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 markdown_text = '''
 #### GeoClusters is a visual tool for geoscientists to compare their data under different clustering algorithms. ####
@@ -34,7 +33,7 @@ markdown_text = '''
 #### To use the clustering comparative tool: ####
 
 >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;o **Click the blue button to select a preprocessed CSV or Excel (xls) file.**
- 
+
 >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- The file must have any preceding and trailing comments removed.
 
 >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Only the column names and column data should remain.
@@ -221,19 +220,19 @@ def main():
             # This now holds a boolean to be used to check if enough data is available to make a 2D graph
             enough_data = [parse_contents(c, n, d) for c, n, d in zip(list_of_contents, list_of_names, list_of_dates)]
 
-            # Left side
-            alg1 = html.Div(alg_selection1())  # Algorithm selection dropdown
-            graph2d3d_1 = html.Div(graph_2d3d_selection1())  # 2D or 3D graph selection radio buttons
-            clusters1 = num_clusters_selection1()  # Number of predicted clusters via radio buttons
-            axes1 = html.Div(axes_selection_xyz_1())  # x, y, z axes' dropdowns
+            # Left side selector components
+            alg1 = html.Div(alg_selection("dropdown_algorithm1"))
+            graph2d3d_1 = html.Div(graph_2d3d_selection("2d3d_graph1"))
+            clusters1 = html.Div(num_clusters_selection("clusters_selector1"))
+            axes1 = html.Div(axes_selection_xyz("dd_x_1", "dd_y_1", "dd_z_1"))
 
-            # Right side
-            alg2 = html.Div(alg_selection2())  # Algorithm selection dropdown
-            graph2d3d_2 = html.Div(graph_2d3d_selection2())  # 2D or 3D graph selection radio buttons
-            clusters2 = num_clusters_selection2()  # Number of predicted clusters via radio buttons
-            axes2 = html.Div(axes_selection_xyz_2())  # x, y, z axes' dropdowns
+            # Right side selector components
+            alg2 = html.Div(alg_selection("dropdown_algorithm2"))
+            graph2d3d_2 = html.Div(graph_2d3d_selection("2d3d_graph2"))
+            clusters2 = html.Div(num_clusters_selection("clusters_selector2"))
+            axes2 = html.Div(axes_selection_xyz("dd_x_2", "dd_y_2", "dd_z_2"))
 
-            # if false
+            # if not enough data
             if not enough_data[0]:
                 children = [
                     html.H5(
@@ -243,7 +242,7 @@ def main():
                         }
                     ),
                 ]
-            # if true
+            # if enough data
             if enough_data[0]:
                 children = [
 
@@ -253,7 +252,7 @@ def main():
                         style={
                             'color': 'black',
                             'textAlign': 'center',
-                            'font-size': '45px',
+                            'font-size': '30px',
                             'padding-top': '30px',
                             'padding-bottom': '30px',
                             'backgroundColor': '#679e7d',
@@ -267,7 +266,6 @@ def main():
                     clusters1,
                     axes1,
 
-
                     # RIGHT SIDE -------
                     html.Br(),
                     html.Br(),
@@ -278,7 +276,7 @@ def main():
                         style={
                             'color': 'black',
                             'textAlign': 'center',
-                            'font-size': '45px',
+                            'font-size': '30px',
                             'padding-top': '30px',
                             'padding-bottom': '30px',
                             'backgroundColor': '#679e7d',
@@ -418,41 +416,20 @@ def main():
 
             if algorithm == 'K-Means':
                 fig = make_k_means_3d_graph(new_df, x, y, z, clusters)
-                children = [
-                    html.Br(),
-                    dcc.Graph(
-                        id='graph2',
-                        figure=fig
-                    ),
-                ]
             elif algorithm == 'Gaussian Mixture Model with EM':
                 fig = make_gmm_3d_graph(new_df, x, y, z, clusters)
-                children = [
-                    html.Br(),
-                    dcc.Graph(
-                        id='graph2',
-                        figure=fig
-                    )
-                ]
             elif algorithm == 'Mean-Shift':
                 fig = make_mean_shift_3d_graph(new_df, x, y, z)
-                children = [
-                    html.Br(),
-                    dcc.Graph(
-                        id='graph2',
-                        figure=fig
-                    ),
-                    html.H5(str(algorithm) + " takes a few extra seconds to process any changes, please be patient.")
-                ]
             elif algorithm == 'DBSCAN':
                 fig = make_dbscan_3d_graph(new_df, x, y, z)
-                children = [
-                    html.Br(),
-                    dcc.Graph(
-                        id='graph2',
-                        figure=fig
-                    )
-                ]
+
+            children = [
+                html.Br(),
+                dcc.Graph(
+                    id='graph2',
+                    figure=fig
+                ),
+            ]
 
         return children
 
@@ -464,7 +441,6 @@ def main():
 
 # Given a file, parse the contents
 def parse_contents(contents, filename, date):
-
     # First, clear the axes_options and data[] for a new incoming file
     axes_options.clear()
     data.clear()
@@ -505,9 +481,10 @@ def parse_contents(contents, filename, date):
     return enough_data
 
 
+# GRAPH FIGURES -------------------------------------------------------------------------------------------------------
+
 # Return a figure for the 3D version of K-Means
 def make_k_means_3d_graph(df, x_axis, y_axis, z_axis, clusters):
-
     x = df[[x_axis, y_axis, z_axis]].values
     kmeans = KMeans(n_clusters=clusters, init="k-means++", max_iter=300, n_init=10, random_state=0)
     y_clusters = kmeans.fit_predict(x)
@@ -532,7 +509,6 @@ def make_k_means_3d_graph(df, x_axis, y_axis, z_axis, clusters):
 
 # Return a figure for the 2D version of K-Means
 def make_k_means_2d_graph(df, x_axis, y_axis, clusters):
-
     x = df[[x_axis, y_axis]].values
     kmeans = KMeans(n_clusters=clusters, init="k-means++", max_iter=300, n_init=10, random_state=0)
     y_clusters = kmeans.fit_predict(x)
@@ -553,7 +529,6 @@ def make_k_means_2d_graph(df, x_axis, y_axis, clusters):
 
 # Return a figure for the 2D version of GMM
 def make_gmm_2d_graph(df, x_axis, y_axis, clusters):
-
     x = df[[x_axis, y_axis]].values
     gmm = mixture.GaussianMixture(n_components=clusters, covariance_type='full').fit(x)
     cluster_labels = gmm.predict(x)
@@ -581,7 +556,6 @@ def make_gmm_2d_graph(df, x_axis, y_axis, clusters):
 
 # Return a figure for the 3D version of GMM
 def make_gmm_3d_graph(df, x_axis, y_axis, z_axis, clusters):
-
     x = df[[x_axis, y_axis, z_axis]].values
     gmm = mixture.GaussianMixture(n_components=clusters, covariance_type='full').fit(x)
     cluster_labels = gmm.predict(x)
@@ -612,7 +586,6 @@ def make_gmm_3d_graph(df, x_axis, y_axis, z_axis, clusters):
 
 # Return a figure for the 2D version of Mean-Shift
 def make_mean_shift_2d_graph(df, x_axis, y_axis):
-
     x = df[[x_axis, y_axis]].values
     ms = MeanShift(bandwidth=None, seeds=None, bin_seeding=False)
     y_clusters = ms.fit(x)
@@ -637,7 +610,6 @@ def make_mean_shift_2d_graph(df, x_axis, y_axis):
 
 # Return a figure for the 3D version of Mean-Shift
 def make_mean_shift_3d_graph(df, x_axis, y_axis, z_axis):
-
     x = df[[x_axis, y_axis, z_axis]].values
     ms = MeanShift(bandwidth=None, seeds=None, bin_seeding=False)
     ms.fit(x)
@@ -664,15 +636,14 @@ def make_mean_shift_3d_graph(df, x_axis, y_axis, z_axis):
 
 # Return a figure for the 2D version of DBSCAN
 def make_dbscan_2d_graph(df, x_axis, y_axis):
-
     x = df[[x_axis, y_axis]].values
     x = StandardScaler().fit_transform(x)
     db = DBSCAN(eps=0.5, min_samples=4).fit(x)
 
     core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
     core_samples_mask[db.core_sample_indices_] = True
-    labels = db.labels_                 # label = 0, 1, or -1 for noise
-    unique_labels = np.unique(labels)   # Black removed and is used for noise instead
+    labels = db.labels_  # label = 0, 1, or -1 for noise
+    unique_labels = np.unique(labels)  # Black removed and is used for noise instead
     n_clusters = len(unique_labels)
 
     title = "DBSCAN with " + str(n_clusters) + " clusters (black represents noise)"
@@ -704,7 +675,6 @@ def make_dbscan_2d_graph(df, x_axis, y_axis):
 
 # Return a figure for the 3D version of DBSCAN
 def make_dbscan_3d_graph(df, x_axis, y_axis, z_axis):
-
     x = df[[x_axis, y_axis, z_axis]].values
     x = StandardScaler().fit_transform(x)
     db = DBSCAN(eps=0.5, min_samples=6).fit(x)  # min samples = 2 * number of dimensions (3)
@@ -743,14 +713,14 @@ def make_dbscan_3d_graph(df, x_axis, y_axis, z_axis):
     return fig_db
 
 
-# LEFT COMPONENTS ---------------------------------------------------------------------------------------------------
+# SELECTOR COMPONENTS -------------------------------------------------------------------------------------------------
 
 # Return a Div container that contains algorithm selection dropdown
-def alg_selection1():
+def alg_selection(alg_id):
     return html.Div([
         html.H5("Algorithm Selection"),
         dcc.Dropdown(
-            id="dropdown_algorithm1",
+            id=alg_id,
             options=[{'label': 'K-Means', 'value': 'K-Means'},
                      {'label': 'Gaussian Mixture Model with EM', 'value': 'Gaussian Mixture Model with EM'},
                      {'label': 'DBSCAN', 'value': 'DBSCAN'},
@@ -768,12 +738,12 @@ def alg_selection1():
     ]),
 
 
-# Return a Div container that contains number of clusters selection dropdown
-def num_clusters_selection1():
+# Return a Div container that contains number of clusters selection radio items
+def num_clusters_selection(cluster_id):
     return html.Div([
-        html.H5("Select the number of predicted clusters (will be applied to K-Means and GMM only)"),
+        html.H5("Select the number of predicted clusters (applied to K-Means and GMM only)"),
         dcc.RadioItems(
-            id='clusters_selector1',
+            id=cluster_id,
             options=[
                 {'label': '2', 'value': 2},
                 {'label': '3', 'value': 3},
@@ -790,12 +760,12 @@ def num_clusters_selection1():
     ])
 
 
-# Return a Div container that contains 2D or 3D graph choice selection dropdown
-def graph_2d3d_selection1():
+# Return a Div container that contains 2D or 3D graph choice selection radio items
+def graph_2d3d_selection(graph_type_id):
     return html.Div([
         html.H5("Select a 2D or 3D graph"),
         dcc.RadioItems(
-            id='2d3d_graph1',
+            id=graph_type_id,
             options=[
                 {'label': '2D', 'value': '2D'},
                 {'label': '3D', 'value': '3D'}
@@ -807,117 +777,11 @@ def graph_2d3d_selection1():
 
 
 # Return a Div container that contains axis selection dropdowns for x, y, and z
-def axes_selection_xyz_1():
+def axes_selection_xyz(dd_x_id, dd_y_id, dd_z_id):
     return html.Div([
         html.H5("X-Axis"),
         dcc.Dropdown(
-            id="dd_x_1",
-            placeholder='Select X-axis attribute 1',
-            options=[{'label': i, 'value': i} for i in axes_options],
-            style={
-                'width': '50%',
-                'lineHeight': '30px',
-                'borderWidth': '1px',
-                'textAlign': 'left'
-            },
-        ),
-        html.H5("Y-Axis"),
-        dcc.Dropdown(
-            id="dd_y_1",
-            placeholder='Select Y-axis attribute 1',
-            options=[{'label': i, 'value': i} for i in axes_options],
-            style={
-                'width': '50%',
-                'lineHeight': '30px',
-                'borderWidth': '1px',
-                'textAlign': 'left'
-            },
-        ),
-        html.H5("Z-Axis"),
-        dcc.Dropdown(
-            id="dd_z_1",
-            placeholder='Select Z-axis attribute 1',
-            options=[{'label': i, 'value': i} for i in axes_options],
-            style={
-                'width': '50%',
-                'lineHeight': '30px',
-                'borderWidth': '1px',
-                'textAlign': 'left'
-            }
-        ),
-        html.Br()
-    ]),
-
-
-# RIGHT COMPONENTS ---------------------------------------------------------------------------------------------------
-
-# Return a Div container that contains algorithm selection dropdown
-def alg_selection2():
-    return html.Div([
-        html.H5("Algorithm Selection"),
-        dcc.Dropdown(
-            id="dropdown_algorithm2",
-            options=[{'label': 'K-Means', 'value': 'K-Means'},
-                     {'label': 'Gaussian Mixture Model with EM', 'value': 'Gaussian Mixture Model with EM'},
-                     {'label': 'DBSCAN', 'value': 'DBSCAN'},
-                     {'label': 'Mean-Shift', 'value': 'Mean-Shift'}
-                     ],
-            placeholder='Select an algorithm',
-            style={
-                'width': '50%',
-                'display': 'inline-block',
-                'lineHeight': '30px',
-                'borderWidth': '1px',
-                'textAlign': 'left'
-            }
-        ),
-    ]),
-
-
-# Return a Div container that contains number of clusters selection dropdown
-def num_clusters_selection2():
-    return html.Div([
-        html.H5("Select the number of predicted clusters (will be applied to K-Means and GMM only)"),
-        dcc.RadioItems(
-            id='clusters_selector2',
-            options=[
-                {'label': '2', 'value': 2},
-                {'label': '3', 'value': 3},
-                {'label': '4', 'value': 4},
-                {'label': '5', 'value': 5},
-                {'label': '6', 'value': 6},
-                {'label': '7', 'value': 7},
-                {'label': '8', 'value': 8}
-            ],
-            value=2,
-            labelStyle={'display': 'inline-block'}
-        ),
-        html.Br()
-    ])
-
-
-# Return a Div container that contains 2D or 3D graph choice selection dropdown
-def graph_2d3d_selection2():
-    return html.Div([
-        html.H5("Select a 2D or 3D graph"),
-        dcc.RadioItems(
-            id='2d3d_graph2',
-            options=[
-                {'label': '2D', 'value': '2D'},
-                {'label': '3D', 'value': '3D'}
-            ],
-            value='2D',
-            labelStyle={'display': 'inline-block'}),
-        html.Br()
-    ])
-
-
-# Return a Div container that contains axis selection dropdowns for x, y, and z
-def axes_selection_xyz_2():
-    return html.Div([
-        html.H5("X-Axis"),
-        dcc.Dropdown(
-            id="dd_x_2",
+            id=dd_x_id,
             placeholder='Select X-axis attribute 2',
             options=[{'label': i, 'value': i} for i in axes_options],
             style={
@@ -929,7 +793,7 @@ def axes_selection_xyz_2():
         ),
         html.H5("Y-Axis"),
         dcc.Dropdown(
-            id="dd_y_2",
+            id=dd_y_id,
             placeholder='Select Y-axis attribute 2',
             options=[{'label': i, 'value': i} for i in axes_options],
             style={
@@ -941,7 +805,7 @@ def axes_selection_xyz_2():
         ),
         html.H5("Z-Axis"),
         dcc.Dropdown(
-            id="dd_z_2",
+            id=dd_z_id,
             placeholder='Select Z-axis attribute 2',
             options=[{'label': i, 'value': i} for i in axes_options],
             style={
