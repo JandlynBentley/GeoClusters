@@ -63,36 +63,53 @@ This algorithm the most computationally expensive of the four with a run time O(
 '''
 
 markdown_text = '''
-#### GeoClusters is a visual tool for geoscientists to compare their data under different clustering algorithms. ####
-
-
-#### To use the clustering comparative tool: ####
-
->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;o **Click the blue button to select a preprocessed CSV or Excel (xls) file.**
-
->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- The file must have any preceding and trailing comments removed.
-
->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Only the column names and column data should remain.
->&nbsp;
-
->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;o **If the file meets these conditions, sub-menus to select algorithm and 
-graph parameters will appear.**
-
->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- To compare clustering algorithms on your data, 
-select parameters from these options.
-
->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- A new graph will only appear if: 
-
->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* An algorithm is selected.
-
->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* X and Y axes must be 
-selected to produce a 2D graph, and X, Y, and Z selected for a 3D graph.   
->
-&nbsp;
->
->**Note:** The "number of predicted clusters" option will only be applied to K-Means and GMM algorithms.
+GeoClusters is a visual tool for geoscientists to compare their data under different clustering algorithms.
+It allows you to compare different clustering algorithms run over the same data set by visually displaying two 
+scatter plots side-by-side.
 
 &nbsp;
+
+To use the clustering comparative tool:
+
+1) **Click the blue button to select a preprocessed CSV or Excel (xls) file.**
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- The file must have any preceding and trailing comments removed.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Only the column names and column data should remain.
+&nbsp;
+
+2) **If the file meets these conditions, two columns of sub-menus will appear.**
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- The selections from each set of columns will affect the output in a scatter plot 
+on the same side. 
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- A new graph will only appear if: 
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*  An algorithm is selected.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* X and Y axes must be selected to produce a 2D graph, 
+and X, Y, and Z selected for a 3D graph.   
+&nbsp;
+
+**Note:** _The "number of predicted clusters" option will only be applied to K-Means and GMM algorithms._
+
+&nbsp;
+
+A few options for comparative selections include:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 2D plots of different algorithms
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 3D plots of different algorithms
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- a 2D plot to a 3D plot of the same or different algorithm 
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- the same algorithm with the same number of dimensions but with varying axes’ 
+attributes
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- any of the aforementioned with same or differing number of clusters (for K-Means and GMM)
+
+&nbsp;
+
 
 The code for this open-source tool can be found on [Github](https://github.com/JandlynBentley/GeoClusters).
 '''
@@ -135,7 +152,7 @@ def main():
                 ],
                 style={
                     'textAlign': 'left',
-                    'font-size': '22px',
+                    'font-size': '25px',
                     'padding-right': '50px',
                     'padding-left': '50px',
                     'padding-top': '30px',
@@ -269,7 +286,7 @@ def main():
                 ],
                 style={
                     'textAlign': 'left',
-                    'font-size': '22px',
+                    'font-size': '25px',
                     'padding-right': '50px',
                     'padding-left': '50px',
                     'padding-top': '30px',
@@ -298,7 +315,7 @@ def main():
                 ],
                 style={
                     'textAlign': 'left',
-                    'font-size': '22px',
+                    'font-size': '25px',
                     'padding-right': '50px',
                     'padding-left': '50px',
                     'padding-top': '30px',
@@ -327,7 +344,7 @@ def main():
                 ],
                 style={
                     'textAlign': 'left',
-                    'font-size': '22px',
+                    'font-size': '25px',
                     'padding-right': '50px',
                     'padding-left': '50px',
                     'padding-top': '30px',
@@ -356,7 +373,7 @@ def main():
                 ],
                 style={
                     'textAlign': 'left',
-                    'font-size': '22px',
+                    'font-size': '25px',
                     'padding-right': '50px',
                     'padding-left': '50px',
                     'padding-top': '30px',
