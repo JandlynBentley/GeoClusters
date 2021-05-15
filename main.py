@@ -26,6 +26,42 @@ from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+
+markdown_text_kmeans = '''
+This is a very popular algorithm and makes a great baseline to compare other algorithms to.
+K-Means partitions a data set into a pre-specified number of expected clusters. 
+Each point is assigned to its closest centroid, based on the sum of the squared Euclidean distance, referred to as the 
+sum of squared error (SSE).
+This algorithm works well for data with natural spherically shaped clusters and not so much for non-spherical clusters 
+or clusters of varying densities.
+K-Means assumes uniform covariance (the measure of the variability of two variables) and linear separability (the 
+ability to draw a straight line between clusters).
+'''
+
+markdown_text_gmm = '''
+A Gaussian function typically results in a bell curve. The Gaussian Mixture Model is a probabilistic model that assumes 
+all data points are generated from a mixture of a finite number of Gaussian distributions with unknown parameters. GMM 
+accounts for variable covariance (which can be thought of as the width of the bell curve), mean, and 
+weight parameters for each Gaussian distribution.
+'''
+
+markdown_text_DBSCAN = '''
+Density-based methods work well when the data isn’t clean and the clusters are non-spherical.
+The DBSCAN algorithm DBSCAN does not require the number of clusters to be defined upfront.
+It uses a specified distance parameter called epsilon to specify how close the points should be to 
+each other to be considered part of a cluster. Also, a min_samples parameter specifies the minimum number of points to 
+form a dense region. Together these separate dense clusters from less dense areas, labeled as outliers and noise. 
+The downside is it assumes that all meaningful clusters have similar densities.
+'''
+
+markdown_text_mean_shift = '''
+Mean-shift does not require defining the number of clusters in advance and does not assume any prior clustering shape. 
+It relies on a single parameter called bandwidth. This bandwidth defines a window and places it on a data point, 
+calculates the mean for all points within the window, moves the center of the window to the location of the mean, and 
+repeats these steps until convergence.
+This algorithm the most computationally expensive of the four with a run time O(n2).
+'''
+
 markdown_text = '''
 #### GeoClusters is a visual tool for geoscientists to compare their data under different clustering algorithms. ####
 
@@ -107,6 +143,8 @@ def main():
                     'width': '60%',
                     'backgroundColor': '#e3faec',
                     'margin-left': '18%',
+                    'borderWidth': '2px',
+                    'borderStyle': 'solid'
                 }
             ),
             html.Br(),
@@ -173,6 +211,16 @@ def main():
         # Div 3: Holds the upload tool
         html.Div([
             html.Br(),
+            html.Br(),
+            html.H1(
+                children='Upload a data set',
+                style={
+                    'color': '#558066',
+                    'textAlign': 'center',
+                    'font-size': '35px',
+
+                }
+            ),
             dcc.Upload(
                 id='upload-data',
                 children=html.Div([
@@ -195,8 +243,132 @@ def main():
                 # Allow multiple files to be uploaded
                 multiple=True
             ),
+            html.Br(),
             html.Br()
-        ])  # Div 3 ends
+        ]),  # Div 3 ends
+
+        # ************************************************************************************************
+
+        # Div 4: Holds the Algorithm Descriptions
+        html.Div([
+            html.Br(),
+            html.Br(),
+            html.Br(),
+            html.H1(
+                children='K-Means',
+                style={
+                    'color': '#558066',
+                    'textAlign': 'left',
+                    'font-size': '35px'
+                }
+            ),
+            # Description of K-Means
+            dcc.Markdown(
+                children=[
+                    markdown_text_kmeans,
+                ],
+                style={
+                    'textAlign': 'left',
+                    'font-size': '22px',
+                    'padding-right': '50px',
+                    'padding-left': '50px',
+                    'padding-top': '30px',
+                    'padding-bottom': '30px',
+                    'width': '95%',
+                    'backgroundColor': '#e3faec',
+                    'borderWidth': '2px',
+                    'borderStyle': 'solid'
+                }
+            ),
+
+            html.Br(),
+            html.Br(),
+            html.H1(
+                children='Expectation-Maximization (EM) using Gaussian Mixture Models (GMM)',
+                style={
+                    'color': '#558066',
+                    'textAlign': 'left',
+                    'font-size': '35px'
+                }
+            ),
+            # Description of GMM
+            dcc.Markdown(
+                children=[
+                    markdown_text_gmm,
+                ],
+                style={
+                    'textAlign': 'left',
+                    'font-size': '22px',
+                    'padding-right': '50px',
+                    'padding-left': '50px',
+                    'padding-top': '30px',
+                    'padding-bottom': '30px',
+                    'width': '95%',
+                    'backgroundColor': '#e3faec',
+                    'borderWidth': '2px',
+                    'borderStyle': 'solid'
+                }
+            ),
+            html.Br(),
+            html.Br(),
+
+            html.H1(
+                children='Density-Based Spatial Clustering of Applications with Noise (DBSCAN)',
+                style={
+                    'color': '#558066',
+                    'textAlign': 'left',
+                    'font-size': '35px'
+                }
+            ),
+            # Description of GMM
+            dcc.Markdown(
+                children=[
+                    markdown_text_DBSCAN,
+                ],
+                style={
+                    'textAlign': 'left',
+                    'font-size': '22px',
+                    'padding-right': '50px',
+                    'padding-left': '50px',
+                    'padding-top': '30px',
+                    'padding-bottom': '30px',
+                    'width': '95%',
+                    'backgroundColor': '#e3faec',
+                    'borderWidth': '2px',
+                    'borderStyle': 'solid'
+                }
+            ),
+            html.Br(),
+            html.Br(),
+
+            html.H1(
+                children='Mean-Shift',
+                style={
+                    'color': '#558066',
+                    'textAlign': 'left',
+                    'font-size': '35px'
+                }
+            ),
+            # Description of GMM
+            dcc.Markdown(
+                children=[
+                    markdown_text_mean_shift,
+                ],
+                style={
+                    'textAlign': 'left',
+                    'font-size': '22px',
+                    'padding-right': '50px',
+                    'padding-left': '50px',
+                    'padding-top': '30px',
+                    'padding-bottom': '30px',
+                    'width': '95%',
+                    'backgroundColor': '#e3faec',
+                    'borderWidth': '2px',
+                    'borderStyle': 'solid'
+                }
+            ),
+            html.Br(),
+        ])  # Div 4 ends
 
     ],
         style={
