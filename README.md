@@ -38,7 +38,7 @@ A few comparative examples include:
 
 <img width="1246" alt="gmm_dbscan_compare_3D" src="https://user-images.githubusercontent.com/55167378/118377848-cedcc580-b59d-11eb-88f5-4b6d12df76d6.png">
 
-To submit a bug report, please email a detailed description of the bug to this email: j2bentley@student.bridgew.edu.
+To submit a bug report, please email a detailed description of the bug to this email: jbentley1679@gmail.com.
 
 ---
 
